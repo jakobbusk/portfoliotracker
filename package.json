@@ -1,0 +1,21 @@
+{
+  "name": "eksamensprojekt-2sem",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon -e ejs,js,mjs,cjs,json app.js",
+    "migrate": "node database/migrate.js"
+  },
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "mssql": "^11.0.1"
+  }
+}

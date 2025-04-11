@@ -1,0 +1,38 @@
+<%- include('../partials/head') %>
+
+<%- include('../partials/navbar') %>
+
+    <main class="flex-column">
+        <header>
+            <h1>Dashboard</h1>
+            <p>Welcome to your portfolio tracker dashboard!</p>
+        </header>
+        <div class="flex-container">
+          <div class="flex-item stats-card">
+            <h3>Total værdi</h3>
+            <p> 10%</p>
+            <p class="stats-card-value">10</p>
+          </div>
+          <div class="flex-item">
+            <h3>Total realiseret gevinst </h3>
+
+          </div>
+          <div class="flex-item">
+            <h3>Total urealiseret gevinst</h3>
+
+          </div>
+        </div>
+        <div class="flex-container">
+            <div class="flex-item">
+                <canvas id="myChart" height="300"></canvas>
+            </div>
+            <div class="flex-item">
+                <canvas id="myChart" height="300"></canvas>
+
+            </div>
+        </div>
+
+    </main>
+<%- include('../partials/footer') %>
+
+<script type="module" src="/js/pages/dashboard.js"></script>
