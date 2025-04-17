@@ -6,7 +6,7 @@ import portfolioRoutes from './PortfolioRoutes.js'
 
 router.use('/auth', authRoutes)
 
-router.use('/accounts/:userId/portfolios', portfolioRoutes)
-
 router.use('/accounts', accountRoutes)
+
+router.use('/accounts/:accountID/portfolios', portfolioRoutes)
 export default router

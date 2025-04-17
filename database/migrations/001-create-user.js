@@ -3,7 +3,7 @@ export async function up(db){
 
     // opretter user tabellen
     await db.query(`
-        CREATE TABLE User (
+        CREATE TABLE [User] (
             id INT IDENTITY PRIMARY KEY,
             username NVARCHAR(255) UNIQUE NOT NULL,
             name NVARCHAR(255),

@@ -5,8 +5,8 @@ class PortfolioController {
     }
 
     static async get(req, res) {
-        console.log(req.params);
-
+        const portfolioID = req.params.id;
+        const accountID = req.params.accountID;
 
         res.send(req.params );
     }
