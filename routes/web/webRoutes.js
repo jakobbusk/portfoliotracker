@@ -19,5 +19,14 @@ router.get('/dashboard', async (req, res) => {
   res.render('dashboard', { title: 'Home' })
 });
 
+router.get('/portfolio', async (req, res) => {
+  res.send("All portfolios")
+})
+
+router.get('/portfolio/:portfolioID', async (req, res) => {
+  const portfolioID = req.params.portfolioID
+  res.send(portfolioID)
+})
+
 
 export default router

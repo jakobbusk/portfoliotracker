@@ -7,7 +7,7 @@ class User {
     // Dette gør det nemmere at ændre navnet på tabellen hvis det skulle blive nødvendigt.
     // vi bruger static for at gøre variablen tilgængelig uden at skulle oprette et
     // objekt. Vi kan derfor tilgå variablen ved at skrive User.table
-    static table = 'users';
+    static table = '[User]';
     // Her definerer vi en statisk variabel som indeholder navnene på kolonnerne i tabellen.
     static columns = ['id','username', 'name', 'email', 'password', 'created_at', 'updated_at'];
 
