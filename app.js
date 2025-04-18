@@ -30,9 +30,11 @@ app.use('/', webRoutes)
 
 // Starter serveren
 // Henter port fra miljøvariabler eller bruger 8080 som standard
+if(process.env.NODE_ENV !== 'production') {
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
   console.log('Server listening on port', port)
 })
+}
 
 export default app;
