@@ -8,5 +8,5 @@ router.use('/auth', authRoutes)
 
 router.use('/accounts', accountRoutes)
 
-router.use('/accounts/:accountID/portfolios', portfolioRoutes)
+router.use('/portfolios', portfolioRoutes)
 export default router

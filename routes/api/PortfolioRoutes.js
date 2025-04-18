@@ -9,8 +9,12 @@ const router = express.Router({mergeParams: true}) // mergeParams gør så vi ka
 // Henter alle porteføljer for brugeren
 router.get('/',checkAuth, PortfolioController.getAll)
 
+// Opretter en portefølje
+router.post('/', checkAuth, PortfolioController.create)
+
 // Henter en portefølje
 router.get('/:id',checkAuth, PortfolioController.get)
+
 
 
 

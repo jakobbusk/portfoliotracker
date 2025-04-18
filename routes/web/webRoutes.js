@@ -19,14 +19,15 @@ router.get('/dashboard', async (req, res) => {
   res.render('dashboard', { title: 'Home' })
 });
 
-router.get('/portfolio', async (req, res) => {
-  res.send("All portfolios")
+router.get('/accounts', async (req, res) => {
+  res.render('accounts/accounts', { title: 'Accounts' })
 })
 
-router.get('/portfolio/:portfolioID', async (req, res) => {
-  const portfolioID = req.params.portfolioID
-  res.send(portfolioID)
+router.get('/accounts/:id', async (req, res) => {
+  res.render('accounts/account', { title: 'Account', accountID: req.params.id })
 })
+
+
 
 
 export default router
