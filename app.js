@@ -21,7 +21,7 @@ app.set('views', 'views/pages');
 // Middleware der håndterer json data
 app.use(express.json())
 
-app.use(express.static('public'))
+app.use("/assets/",express.static('public'))
 
 app.use('/api', dbConnectionMiddleware, apiRoutes)
 
