@@ -1,5 +1,5 @@
 
-import { checkCredentials } from '/js/auth.js';
+import { checkCredentials } from '/assets/js/auth.js';
 document.getElementById('login').addEventListener('submit', async function (event) {
     event.preventDefault();
 
