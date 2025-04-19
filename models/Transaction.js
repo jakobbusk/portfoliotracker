@@ -1,7 +1,7 @@
 class Transaction {
 
     static table = 'Transactions';
-    static columns = ['id', 'portfolioID', 'tradeID', 'accountID', 'amount', 'currency', 'exchangeRate', 'transactionType',  'created_at', 'updated_at'];
+    static columns = ['id', 'portfolioID', 'tradeID', 'accountID', 'amount', 'currency', 'exchangeRate', 'transactionType',  'created_at'];
 
 
     constructor(data = {}) {
@@ -26,3 +26,5 @@ class Transaction {
     }
 
 }
+
+export default Transaction;

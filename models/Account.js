@@ -1,4 +1,5 @@
 import db from '../database/db.js';
+import Transaction from './Transaction.js';
 class Account {
     static table = 'Account';
     static columns = ['id', 'userID', 'name', 'currency', 'balance', 'bankReference', 'closed', 'created_at', 'updated_at'];
@@ -36,10 +37,7 @@ class Account {
             const result = await query.input('id', id).input('userID', userID)
                 .query(`SELECT
                     ${columns.map(col => 'a.' + col).join(', ')},
-                    t.id AS transactionID,
-                    t.amount,
-                    t.transactionType,
-                    t.created_at AS transactionDate
+                    ${Transaction.columns.map(col => `t.${col} as transaction${col}`).join(`, `)}
                     FROM ${Account.table} a
                     LEFT JOIN [Transaction] t ON a.id = t.accountID
                     WHERE a.id = @id AND a.userID = @userID
@@ -47,13 +45,22 @@ class Account {
             if (result.recordset.length === 0) return null;
             const account = new Account(result.recordset[0]);
             account.transactions = []
-            if(result.recordset[0].transactionID) {
-                account.transactions = result.recordset.map(row => ({
-                    id: row.transactionID,
-                    amount: row.amount,
-                    transactionType: row.transactionType,
-                    created_at: row.transactionDate
-                }));
+            console.log(result.recordset);
+            if(result.recordset[0].transactionid) {
+                for (const row of result.recordset) {
+                    const transaction = {
+                        id: row.transactionid,
+                        portfolioID: row.transactionportfolioID,
+                        tradeID: row.transactiontradeID,
+                        accountID: row.transactionaccountID,
+                        amount: row.transactionamount,
+                        currency: row.transactioncurrency,
+                        exchangeRate: row.transactionexchangeRate,
+                        transactionType: row.transactiontransactionType,
+                        created_at: row.transactioncreated_at
+                    }
+                    account.transactions.push(transaction);
+                }
             }
             return account;
 
