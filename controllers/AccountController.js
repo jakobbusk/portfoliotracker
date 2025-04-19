@@ -24,7 +24,7 @@ export default class AccountController {
 
 
         try {
-            const account = await Account.findByID(accountID, userID);
+            const account = await Account.findByIDWithTransactions(accountID, userID);
             if (!account) {
                 return res.status(404).json({ message: 'Account not found' });
             }
@@ -34,6 +34,14 @@ export default class AccountController {
             return res.status(500).json({ message: 'Error fetching account', error });
         }
     }
+
+    // Hent alle transaktioner for en konto
+    static async getAccountTransactions(req, res) {
+        const userID = req.user.id;
+        const accountID = req.params.id;
+    }
+
+
 
     // Opret en konto
     static async createAccount(req, res) {

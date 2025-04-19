@@ -1,18 +1,3 @@
-// Make a model for the account
-/**
- *     id INT IDENTITY PRIMARY KEY,
-    userID INT,
-    name NVARCHAR(255),
-    currency NVARCHAR(255),
-    balance DECIMAL(18, 2),
-    bankReference NVARCHAR(255),
-    closed BIT DEFAULT 0,
-    created_at DATETIME DEFAULT GETDATE(),
-    updated_at DATETIME DEFAULT GETDATE(),
-
-    CONSTRAINT FK_userID FOREIGN KEY (userID) REFERENCES users(id),
- */
-
 import db from '../database/db.js';
 class Account {
     static table = 'Account';
@@ -43,17 +28,41 @@ class Account {
         return result.recordset.map(row => new Account(row));
     }
 
-    static async findByID(id, userID, columns = Account.columns) {
+    static async findByIDWithTransactions(id, userID, columns = Account.columns) {
 
-        const result = await db.request().input('id', id).input('userID', userID)
-            .query(`SELECT TOP 1 ${columns.join(', ')}
-                        FROM ${Account.table}
-                        WHERE id = @id AND userID = @userID`);
+        const query = await db.request()
 
+        try {
+            const result = await query.input('id', id).input('userID', userID)
+                .query(`SELECT
+                    ${columns.map(col => 'a.' + col).join(', ')},
+                    t.id AS transactionID,
+                    t.amount,
+                    t.transactionType,
+                    t.created_at AS transactionDate
+                    FROM ${Account.table} a
+                    LEFT JOIN [Transaction] t ON a.id = t.accountID
+                    WHERE a.id = @id AND a.userID = @userID
+                    `)
             if (result.recordset.length === 0) return null;
-            return new Account(result.recordset[0]);
+            const account = new Account(result.recordset[0]);
+            account.transactions = []
+            if(result.recordset[0].transactionID) {
+                account.transactions = result.recordset.map(row => ({
+                    id: row.transactionID,
+                    amount: row.amount,
+                    transactionType: row.transactionType,
+                    created_at: row.transactionDate
+                }));
+            }
+            return account;
 
+        } catch (error) {
+            console.error('Error fetching account:', error);
+            throw error;
         }
+
+    }
 
     async create() {
         const result = await db.request()
@@ -86,6 +95,10 @@ class Account {
                 updated_at = @updated_at
                 WHERE id = @id`);
         return result;
+    }
+
+    async makeTransaction(amount, type) {
+
     }
 
 }

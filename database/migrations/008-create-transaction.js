@@ -10,7 +10,7 @@ export async function up(db){
             accountID INT NOT NULL,
             amount DECIMAL(18, 2) NOT NULL, -- beløb hævet/indsat
             currency VARCHAR(3) NOT NULL, -- valuta på transaktionen i stedet for kontoen
-            exchangeRate DECIMAL(18, 6) NOT NULL, -- vekselkurs
+            exchangeRate DECIMAL(18, 2) NOT NULL, -- vekselkurs
             transactionType VARCHAR(8) NOT NULL, -- deposit/withdraw
             balanceBefore DECIMAL(18, 2) NOT NULL, -- saldo før transaktionen
             balanceAfter DECIMAL(18, 2) NOT NULL, -- saldo efter transaktionen

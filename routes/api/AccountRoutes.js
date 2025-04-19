@@ -21,5 +21,8 @@ router.put('/:id/close',checkAuth, AccountController.closeAccount)
 router.put('/:id/open',checkAuth, AccountController.openAccount)
 
 
+// Hent alle porteføljer for en konto
+router.get('/:id/transactions',checkAuth, AccountController.getAccountTransactions)
+
 
 export default router
