@@ -13,7 +13,7 @@ export async function up(db){
             created_at DATETIME DEFAULT GETDATE() NOT NULL,
             updated_at DATETIME DEFAULT GETDATE() NOT NULL,
 
-            CONSTRAINT FK_accountID FOREIGN KEY (accountID) REFERENCES Account(id),
+            CONSTRAINT FK_Portfolio_accountID FOREIGN KEY (accountID) REFERENCES Account(id),
         );
         `);
 }

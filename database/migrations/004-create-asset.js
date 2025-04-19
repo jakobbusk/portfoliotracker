@@ -3,7 +3,7 @@ export async function up(db){
 
     // opretter user tabellen
     await db.query(`
-        Create TABLE asset
+        Create TABLE Asset(
             id INT IDENTITY PRIMARY KEY,
             name NVARCHAR(255) NOT NULL,
             symbol NVARCHAR(255) NOT NULL,

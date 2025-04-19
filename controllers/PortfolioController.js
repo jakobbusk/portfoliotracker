@@ -16,11 +16,9 @@ class PortfolioController {
 
     }
 
-    static async get(req, res) {
+    static async getOverview(req, res) {
         const portfolioID = req.params.id;
-        const accountID = req.params.accountID;
 
-        res.send(req.params);
     }
 
     static async create(req, res) {

@@ -13,10 +13,7 @@ router.get('/',checkAuth, PortfolioController.getAll)
 router.post('/', checkAuth, PortfolioController.create)
 
 // Henter en portefølje
-router.get('/:id',checkAuth, PortfolioController.get)
-
-
-
+router.get('/:id',checkAuth, PortfolioController.getOverview)
 
 
 export default router

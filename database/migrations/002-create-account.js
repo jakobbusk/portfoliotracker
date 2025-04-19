@@ -14,7 +14,7 @@ export async function up(db){
             created_at DATETIME DEFAULT GETDATE() NOT NULL,
             updated_at DATETIME DEFAULT GETDATE() NOT NULL,
 
-            CONSTRAINT FK_userID FOREIGN KEY (userID) REFERENCES [User](id),
+            CONSTRAINT FK_Account_userID FOREIGN KEY (userID) REFERENCES [User](id),
         );
         `);
 }
