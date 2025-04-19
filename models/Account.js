@@ -31,7 +31,7 @@ class Account {
 
     static async findByIDWithTransactions(id, userID, columns = Account.columns) {
 
-        const query = await db.request()
+        const query = db.request()
 
         try {
             const result = await query.input('id', id).input('userID', userID)
