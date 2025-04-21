@@ -35,14 +35,6 @@ export default class AccountController {
         }
     }
 
-    // Hent alle transaktioner for en konto
-    static async getAccountTransactions(req, res) {
-        const userID = req.user.id;
-        const accountID = req.params.id;
-    }
-
-
-
     // Opret en konto
     static async createAccount(req, res) {
         // TODO
@@ -104,6 +96,35 @@ export default class AccountController {
         }
     }
 
+
+    // Laver en transaktion på en konto
+    static async makeTransactionOnAccount(req, res) {
+        const userID = req.user.id;
+        const accountID = req.params.id;
+        const { amount,currency,exchangeRate,transactionType  } = req.body;
+        let account
+
+        try {
+            account = await Account.findByID(accountID, userID);
+            if (!account) {
+                return res.status(404).json({ message: 'Account not found' });
+            }
+        } catch (error) {
+            console.error('Error making transaction:', error);
+            return res.status(500).json({ message: 'Error making transaction', error });
+        }
+
+        try {
+            await account.makeTransaction(amount,exchangeRate,currency,transactionType);
+
+            return res.status(200).json({ message: 'Transaction made successfully' });
+        } catch (error) {
+            console.error('Error making transaction:', error);
+            return res.status(500).json({ message: 'Error making transaction', error });
+        }
+
+
+    }
 
 
 

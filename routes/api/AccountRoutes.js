@@ -22,7 +22,7 @@ router.put('/:id/open',checkAuth, AccountController.openAccount)
 
 
 // Hent alle porteføljer for en konto
-router.get('/:id/transactions',checkAuth, AccountController.getAccountTransactions)
+router.post('/:id/transactions',checkAuth, AccountController.makeTransactionOnAccount)
 
 
 export default router

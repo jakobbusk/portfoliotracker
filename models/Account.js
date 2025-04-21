@@ -29,6 +29,19 @@ class Account {
         return result.recordset.map(row => new Account(row));
     }
 
+    static async findByID(id, userID, columns = Account.columns) {
+        const query = db.request()
+        try {
+            const result = await query.input('id', id).input('userID', userID)
+                .query(`SELECT ${columns.join(', ')} FROM ${Account.table} WHERE id = @id AND userID = @userID`)
+            if (result.recordset.length === 0) return null;
+            return new Account(result.recordset[0]);
+        } catch (error) {
+            console.error('Error fetching account:', error);
+            throw error;
+        }
+    }
+
     static async findByIDWithTransactions(id, userID, columns = Account.columns) {
 
         const query = db.request()
@@ -37,9 +50,11 @@ class Account {
             const result = await query.input('id', id).input('userID', userID)
                 .query(`SELECT
                     ${columns.map(col => 'a.' + col).join(', ')},
-                    ${Transaction.columns.map(col => `t.${col} as transaction${col}`).join(`, `)}
+                    ${Transaction.columns.map(col => `t.${col} as transaction${col}`).join(`, `)},
+                    p.name AS portfolioName
                     FROM ${Account.table} a
                     LEFT JOIN [Transaction] t ON a.id = t.accountID
+                    LEFT JOIN Portfolio p ON t.portfolioID = p.id
                     WHERE a.id = @id AND a.userID = @userID
                     `)
             if (result.recordset.length === 0) return null;
@@ -47,18 +62,31 @@ class Account {
             account.transactions = []
             console.log(result.recordset);
             if(result.recordset[0].transactionid) {
+                let balanceBefore = 0;
+                let balanceAfter = 0;
                 for (const row of result.recordset) {
+                    if (row.transactiontransactionType === 'deposit') {
+                        balanceAfter += Transaction.convertToAccountCurrency(row.transactionamount, row.transactioncurrency, account.currency, row.transactionexchangeRate);
+                    } else if (row.transactiontransactionType === 'withdraw') {
+                        balanceAfter -= Transaction.convertToAccountCurrency(row.transactionamount, row.transactioncurrency, account.currency, row.transactionexchangeRate);
+                    } else {
+                        balanceAfter = 0;
+                    }
+
                     const transaction = {
                         id: row.transactionid,
                         portfolioID: row.transactionportfolioID,
+                        portfolioName: row.portfolioName,
                         tradeID: row.transactiontradeID,
                         accountID: row.transactionaccountID,
                         amount: row.transactionamount,
                         currency: row.transactioncurrency,
                         exchangeRate: row.transactionexchangeRate,
+                        balanceAfter: balanceAfter,
                         transactionType: row.transactiontransactionType,
                         created_at: row.transactioncreated_at
                     }
+
                     account.transactions.push(transaction);
                 }
             }
@@ -104,7 +132,18 @@ class Account {
         return result;
     }
 
-    async makeTransaction(amount, type) {
+    async makeTransaction(amount,exchangeRate,currency,transactionType) {
+
+        const transaction = new Transaction({
+            accountID: this.id,
+            amount: amount,
+            exchangeRate: exchangeRate,
+            currency: currency,
+            transactionType: transactionType,
+        })
+
+            throw new Error('Not implemented');
+
 
     }
 
