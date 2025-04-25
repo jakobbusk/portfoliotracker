@@ -1,4 +1,5 @@
 import db from '../database/db.js';
+import { convertToTargetCurrency } from '../helpers/currencies.js';
 import Transaction from './Transaction.js';
 class Account {
     static table = 'Account';
@@ -64,9 +65,9 @@ class Account {
             if(result.recordset[0].transactionid) {
                 for (const row of result.recordset) {
                     if (row.transactiontransactionType === 'deposit') {
-                        balanceAfter += Transaction.convertToAccountCurrency(row.transactionamount, row.transactioncurrency, account.currency, row.transactionexchangeRate);
+                        balanceAfter += convertToTargetCurrency(row.transactionamount, row.transactioncurrency, account.currency, row.transactionexchangeRate);
                     } else if (row.transactiontransactionType === 'withdraw') {
-                        balanceAfter -= Transaction.convertToAccountCurrency(row.transactionamount, row.transactioncurrency, account.currency, row.transactionexchangeRate);
+                        balanceAfter -= convertToTargetCurrency(row.transactionamount, row.transactioncurrency, account.currency, row.transactionexchangeRate);
                     } else {
                         balanceAfter = 0;
                     }

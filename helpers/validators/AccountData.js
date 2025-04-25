@@ -1,4 +1,4 @@
-import { availableCurrenciesISO } from "../consts/currencies.js";
+import { availableCurrenciesISO } from "../currencies.js";
 export function validateAccountData ({name, currency, bankReference}) {
     const errors = [];
 

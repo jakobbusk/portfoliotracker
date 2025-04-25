@@ -49,29 +49,6 @@ class Transaction {
 
     }
 
-    static convertToAccountCurrency(amount, transactionCurrency, accountCurrency, exchangeRate) {
-        // Hvus valutaerne er de samme så returner beløbet
-        if (transactionCurrency === accountCurrency) {
-            return amount;
-        }
-
-        // Tjek om kursen er ugyldig
-        if (exchangeRate == undefined ||exchangeRate <= 0) {
-            throw new Error('Invalid exchange rate');
-        }
-
-        // Omregn beløbet til kontovalutaen
-        // beløb / (vekselkurs/100) - 1000dk / 0.1526 = 152,6
-        var convertedAmount = amount / exchangeRate
-
-        // Her bruger vi toFixed til at sikre at vi kun har to decimaler
-        // Vigtgit at vi bruger Number() til at konvertere det til et tal igen
-        return Number(convertedAmount.toFixed(2));
-        // For at få den korrekte exchange rate, så skal vi tage transaktionens valuta som base og kontoen som valuta mål
-        // https://v6.exchangerate-api.com/v6/:YOUR-API-KEY/pair/:transactionCurrency/:accountCurrency
-    }
-
-
 }
 
 export default Transaction;
