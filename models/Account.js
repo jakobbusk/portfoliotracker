@@ -14,7 +14,6 @@ class Account {
         this.closed = data.closed;
         this.created_at = data.created_at;
         this.updated_at = data.updated_at;
-
     }
     // Her opdaterer vi updated_at kolonnen
     updated() {
@@ -61,9 +60,8 @@ class Account {
             const account = new Account(result.recordset[0]);
             account.transactions = []
             console.log(result.recordset);
+            let balanceAfter = 0;
             if(result.recordset[0].transactionid) {
-                let balanceBefore = 0;
-                let balanceAfter = 0;
                 for (const row of result.recordset) {
                     if (row.transactiontransactionType === 'deposit') {
                         balanceAfter += Transaction.convertToAccountCurrency(row.transactionamount, row.transactioncurrency, account.currency, row.transactionexchangeRate);
@@ -90,6 +88,8 @@ class Account {
                     account.transactions.push(transaction);
                 }
             }
+
+            account.balance = balanceAfter;
             return account;
 
         } catch (error) {
@@ -134,6 +134,7 @@ class Account {
 
     async makeTransaction(amount,exchangeRate,currency,transactionType) {
 
+        // Her laver vi en ny klasse af Transaction
         const transaction = new Transaction({
             accountID: this.id,
             amount: amount,
@@ -142,7 +143,16 @@ class Account {
             transactionType: transactionType,
         })
 
-            throw new Error('Not implemented');
+        // Nu sender vi de nødvendige data til Transaction klassen
+        try {
+            const result = await transaction.create();
+            console.log(result);
+            return result;
+        } catch (error) {
+            console.error('Error creating transaction:', error);
+            throw error;
+
+        }
 
 
     }

@@ -1,8 +1,8 @@
 import db from '../database/db.js';
 class Transaction {
 
-    static table = 'Transactions';
-    static columns = ['id', 'portfolioID', 'tradeID', 'accountID', 'amount', 'currency', 'exchangeRate', 'transactionType', 'balanceAfter',  'created_at'];
+    static table = '[Transaction]';
+    static columns = ['id', 'portfolioID', 'tradeID', 'accountID', 'amount', 'currency', 'exchangeRate', 'transactionType',  'created_at'];
 
 
     constructor(data = {}) {
@@ -28,17 +28,24 @@ class Transaction {
     // Lav en transaktion
     async create() {
 
-        // Logik til at oprette en transaktion
-        const lastTransaction = db.request()
         try {
+            // Her laver vi en transaktion
+            const result = await db.request()
+                .input('portfolioID', this.portfolioID)
+                .input('tradeID', this.tradeID)
+                .input('accountID', this.accountID)
+                .input('amount', this.amount)
+                .input('currency', this.currency)
+                .input('exchangeRate', this.exchangeRate)
+                .input('transactionType', this.transactionType)
+                .query(`INSERT INTO ${Transaction.table} (portfolioID, tradeID, accountID, amount, currency, exchangeRate, transactionType) VALUES (@portfolioID, @tradeID, @accountID, @amount, @currency, @exchangeRate, @transactionType)`);
 
-        await lastTransaction.input('accountID', this.accountID)
-        .query(`SELECT TOP 1 balanceAfter FROM ${Transaction.table} WHERE accountID = @accountID ORDER BY created_at DESC`);
+            return result;
 
         } catch (error) {
-
+            console.error('Error fetching last transaction:', error);
+            throw error;
         }
-
 
     }
 
