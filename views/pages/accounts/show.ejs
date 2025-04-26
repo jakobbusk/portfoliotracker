@@ -1,0 +1,146 @@
+<%- include('../../partials/head') %>
+
+<%- include('../../partials/navbar') %>
+
+    <main class="flex-column">
+        <header>
+            <div>
+                <h1 id="accountName"></h1>
+                <p><span id="accountBank"></span> - <span id="accountCurrency"></span></p>
+            </div>
+            <div>
+                <a href="/accounts/withdraw" class="button">Hæv penge</a>
+                <a href="/accounts/deposit" class="button">Indsæt penge</a>
+
+            </div>
+
+        </header>
+        <div class="flex-container">
+            <div class="flex-item">
+                <h2>Alle transaktioner her</p>
+                <div id="transactionTable" class="table-container">
+                </div>
+            </div>
+        </div>
+    </main>
+
+<%- include('../../partials/footer') %>
+
+
+<script type="module">
+    import api from '/assets/js/api.js';
+    import createTable from '/assets/js/table.js';
+
+    const transactionTable = document.getElementById('transactionTable');
+    const accountName = document.getElementById('accountName');
+    const accountBank = document.getElementById('accountBank');
+    const accountCurrency = document.getElementById('accountCurrency');
+
+
+    // Vi ved at den første del af URL'en er /accounts/
+    // og den sidste del er accountID
+    // Vi skal have fat i accountID
+    const url = window.location.href.split('/');
+    // Vi tager længden af URL'en og trækker 1 fra for at få den sidste del
+    const accountID = url[url.length - 1];
+
+
+
+    // Funktion til at hente alle konti
+    async function fetchAccount(){
+        try {
+            const response = await api(`/accounts/${accountID}`,'GET')
+            const account = await response.json();
+
+            console.log(account);
+            accountName.innerText = account.name;
+            accountBank.innerText = account.bankReference;
+            accountCurrency.innerText = account.currency;
+
+            /**
+             *             "id": 2,
+            "portfolioID": 1,
+            "portfolioName": "Pension",
+            "tradeID": null,
+            "accountID": 1,
+            "amount": 100,
+            "currency": "USD",
+            "exchangeRate": 1,
+            "balanceAfter": -100,
+            "transactionType": "withdraw",
+            "created_at": "2025-04-19T10:26:34.363Z"
+            */
+
+            const options = {
+                columns: [
+
+                    {
+                        name: 'Beløb',
+                        key: 'amount',
+                        callback: (row) => {
+                            if(row.transactionType === 'withdraw') row.amount = -row.amount;
+
+                            return Intl.NumberFormat('da-DK', {
+                                style: 'currency',
+                                currency: row.currency,
+                            }).format(row.amount);
+                        }
+                    },
+                    {
+                        name: 'Kurs',
+                        key: 'exchangeRate'
+                    },
+                    {
+                        name: 'Saldo efter på konto',
+                        key: 'balanceAfter',
+                        callback: (row) => {
+
+                            return Intl.NumberFormat('da-DK', {
+                                style: 'currency',
+                                currency: account.currency,
+                            }).format(row.balanceAfter);;
+                        }
+                    },
+                    {
+                        name: 'Portefølje',
+                        key: 'portfolioName',
+                        callback: (row) => {
+                            if(!row.portfolioName) return '';
+                            else {
+                                const linkToPortfolio = document.createElement('a');
+                                linkToPortfolio.href = `/portfolios/${row.portfolioID}`;
+                                linkToPortfolio.innerText = `${row.portfolioName}`;
+                                return linkToPortfolio;
+                            }
+                        }
+                    },
+                    {
+                        name: 'Dato',
+                        key: 'created_at',
+                        callback: (row) => {
+                            const date = new Date(row.created_at);
+
+                            return date.toLocaleDateString('da-DK', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                            });
+                        }
+                    },
+                ]
+            }
+
+            const table = createTable(account.transactions, options)
+            transactionTable.appendChild(table);
+
+
+        } catch (error) {
+            alert('Der skete en fejl under hentning af konti');
+            console.error('Error fetching accounts:', error);
+        }
+    }
+
+    await fetchAccount();
+</script>

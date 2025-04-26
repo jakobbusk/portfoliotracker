@@ -1,0 +1,67 @@
+<%- include('../../partials/head') %>
+
+<%- include('../../partials/navbar') %>
+
+    <main class="flex-column">
+        <header>
+            <div>
+                <h1 style="text-align: center;">Opret Konto</h1>
+            </div>
+        </header>
+
+        <div class="flex-container">
+            <div class="flex-item">
+                <form id="createAccountForm" class="form-container">
+                    <input type="text" id="name" placeholder="Konto navn" required>
+                    <input type="text" id="bankReference" placeholder="Bank navn" required>
+                    <select id="currency" required>
+                        <option value="DKK">DKK</option>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                    </option>
+
+                    <button id="createAccountButton" type="submit">Opret konto</button>
+                </form>
+            </div>
+        </div>
+    </main>
+<%- include('../../partials/footer') %>
+
+<script type="module">
+    import api from '/assets/js/api.js';
+
+    const createAccountForm = document.getElementById('createAccountForm');
+
+    createAccountForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const name = document.getElementById('name').value;
+        const bankReference = document.getElementById('bankReference').value;
+        const currency = document.getElementById('currency').value;
+
+        const accountData = {
+            name,
+            bankReference,
+            currency
+        };
+
+        try {
+            const response = await api('/accounts', 'POST', accountData);
+
+            if (response.ok) {
+                const result = await response.json();
+
+                window.location.href = `/accounts/${result.accountID}`;
+
+            } else {
+                alert('Der skete en fejl under oprettelse af kontoen');
+            }
+        } catch (error) {
+            console.error('Error creating account:', error);
+            alert('Der skete en fejl under oprettelse af kontoen');
+        }
+    });
+
+
+</script>

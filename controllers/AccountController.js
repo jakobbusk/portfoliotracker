@@ -53,7 +53,7 @@ export default class AccountController {
         const account = new Account({ userID, name, currency, balance, bankReference });
         try {
             const result = await account.create();
-            return res.status(201).json({ message: 'Account created successfully' });
+            return res.status(201).json({ message: 'Account created successfully', accountID: result.recordset[0].Id });
         } catch (error) {
             return res.status(500).json({ message: 'Error creating account', error });
         }

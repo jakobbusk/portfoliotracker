@@ -1,0 +1,60 @@
+<%- include('../../partials/head') %>
+
+<%- include('../../partials/navbar') %>
+
+    <main class="flex-column">
+        <header>
+            <div>
+                <h1>Konti</h1>
+                <p>Alle konti her</p>
+            </div>
+            <div>
+                <a href="/accounts/create" class="button">Opret konto</a>
+            </div>
+
+        </header>
+
+        <div class="flex-container">
+            <div class="flex-item">
+                <div id="accountTable" class="table-container">
+                </div>
+            </div>
+        </div>
+    </main>
+<%- include('../../partials/footer') %>
+
+<script type="module">
+    import api from '/assets/js/api.js';
+    import createTable from '/assets/js/table.js';
+    const accountTable = document.getElementById('accountTable');
+
+
+    // Funktion til at hente alle konti
+    async function fetchAccounts(){
+        try {
+            const response = await api('/accounts','GET')
+            const accounts = await response.json();
+            const options = {
+                link: {
+                    key: 'id',
+                    href: '/accounts',
+                },
+                columns: [
+                    { name: 'Konto', key: 'name'},
+                    { name: 'Bank', key: 'bankReference' },
+                    { name: 'Valuta', key: 'currency' },
+                    { name: 'Saldo', key: 'balance' },
+                ]
+            }
+
+            const table = createTable(accounts, options);
+            accountTable.appendChild(table);
+
+        } catch (error) {
+            alert('Der skete en fejl under hentning af konti');
+            console.error('Error fetching accounts:', error);
+        }
+    }
+
+    await fetchAccounts();
+</script>

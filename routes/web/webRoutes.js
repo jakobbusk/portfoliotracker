@@ -15,17 +15,29 @@ router.get('/register', (req, res) => {
   res.render('register', { title: 'Register' })
 });
 
-router.get('/dashboard', async (req, res) => {
+router.get('/dashboard', (req, res) => {
   res.render('dashboard', { title: 'Home' })
 });
 
-router.get('/accounts', async (req, res) => {
-  res.render('accounts/accounts', { title: 'Accounts' })
+router.get('/accounts', (req, res) => {
+  res.render('accounts/list', { title: 'Accounts' })
 })
 
-router.get('/accounts/:id', async (req, res) => {
-  res.render('accounts/account', { title: 'Account', accountID: req.params.id })
+router.get('/accounts/create', (req, res) => {
+  res.render('accounts/create', { title: 'Create Account' })
+});
+
+router.get('/accounts/:id', (req, res) => {
+  res.render('accounts/show', { title: 'Account', accountID: req.params.id })
 })
+
+router.get('/accounts/:id/deposit', (req, res) => {
+  res.render('accounts/deposit', { title: 'Transaction', accountID: req.params.id })}
+);
+
+router.get('/accounts/:id/withdraw', (req, res) => {
+  res.render('accounts/withdraw', { title: 'Transaction', accountID: req.params.id })
+});
 
 
 

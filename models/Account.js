@@ -107,6 +107,7 @@ class Account {
             .input('currency', this.currency)
             .input('bankReference', this.bankReference)
             .query(`INSERT INTO ${Account.table} (userID, name, currency, bankReference)
+                OUTPUT INSERTED.Id
                 VALUES (@userID, @name, @currency, @bankReference)`);
 
         return result;
