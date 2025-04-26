@@ -115,8 +115,11 @@ export default class AccountController {
         }
 
         try {
-            await account.makeTransaction(amount,exchangeRate,currency,transactionType);
+            const result = await account.makeTransaction(amount,exchangeRate,currency,transactionType);
 
+            if(result.error) {
+                return res.status(400).json({ message: result.error });
+            }
             return res.status(200).json({ message: 'Transaction made successfully' });
         } catch (error) {
             console.error('Error making transaction:', error);

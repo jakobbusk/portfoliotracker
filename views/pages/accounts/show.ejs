@@ -20,7 +20,7 @@
                 <h2>Indsæt penge</p>
                 <form id="depositForm" class="form">
                     <label for="amount">Beløb</label>
-                    <input type="number" id="amount" name="amount" required>
+                    <input type="number" id="amount" name="amount" min="0" step="0.01" required>
                     <label for="currency">Valuta</label>
                     <select id="currency" required>
                         <option value="DKK">DKK</option>
@@ -40,6 +40,12 @@
         <div id="withdrawContainer" class="flex-container" style="display: none;">
             <div class="flex-item">
                 <h2>Hæv penge</p>
+                    <form id="withdrawForm" class="form">
+                        <label for="withdrawAmount">Beløb</label>
+                        <input type="number" id="withdrawAmount" name="withdrawAmount" required>
+                        <p id="withdrawedValue"></p>
+                        <button type="submit">hæv penge</button>
+                    </form>
 
             </div>
         </div>
@@ -249,6 +255,47 @@
     });
 
 
+    // Logik til at hæve penge herunder
+    const withdrawForm = document.getElementById('withdrawForm');
+    const withdrawAmount = document.getElementById('withdrawAmount');
+    var withdrawedAmount = 0;
+    withdrawAmount.addEventListener('input', (e) => {
+        const amountValue = parseFloat(withdrawAmount.value);
+        if(isNaN(amountValue)) {
+            withdrawedAmount = 0;
+        } else {
+            withdrawedAmount = amountValue;
+        }
 
+        withdrawedAmount = withdrawedAmount.toFixed(2);
+        document.getElementById('withdrawedValue').innerText = `Hævet værdi: ${withdrawedAmount} ${account.currency}`;
+    });
+
+    withdrawForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const withdrawData = {
+            amount: parseFloat(withdrawAmount.value),
+            currency: account.currency,
+            transactionType: 'withdraw',
+            exchangeRate: 1,
+        }
+
+        try {
+            const response = await api(`accounts/${accountID}/transactions`, 'POST', withdrawData);
+            if (response.ok) {
+                alert('Udbetaling gennemført');
+                window.location.reload();
+            } else if(response.status == 400) {
+                alert('Der er dækning på kontoen');
+            } else {
+                alert('Der skete en fejl under udbetaling');
+
+            }
+        } catch (error) {
+            console.error('Error withdrawing money:', error);
+            alert('Der skete en fejl under udbetaling');
+        }
+    });
 
 </script>

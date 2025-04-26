@@ -24,8 +24,12 @@ export default async function api(endpoint, method = 'GET', body = null) {
     const response = await fetch(`/api/${endpoint}`, options);
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API fejl: ${response.status} ${errorText}`);
+      if(response.status > 499) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'An error occurred');
+      } else {
+        return response
+      }
     }
 
     return response;
