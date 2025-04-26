@@ -166,7 +166,8 @@ td {
 
 
 
-button {
+button, .button {
+    text-decoration: none;
     background-color: #84837E;
     color: #C3C3C1;
     border: none; /* Fjerner standard border */

@@ -16,7 +16,7 @@ app.use((req, res, next) => {
 })
 
 app.set('view engine', 'ejs');
-app.set('views', 'views/pages');
+app.set('views', './views/pages');
 
 // Middleware der håndterer json data
 app.use(express.json())
