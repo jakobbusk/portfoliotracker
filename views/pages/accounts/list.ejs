@@ -32,7 +32,7 @@
     // Funktion til at hente alle konti
     async function fetchAccounts(){
         try {
-            const response = await api('/accounts','GET')
+            const response = await api('accounts','GET')
             const accounts = await response.json();
             const options = {
                 link: {
