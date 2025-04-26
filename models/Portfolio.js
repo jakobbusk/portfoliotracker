@@ -53,6 +53,14 @@ class Portfolio {
         return result;
     }
 
+    async buy() {
+        // TODO
+    }
+
+    async sell() {
+        // TODO
+    }
+
 
 
 }

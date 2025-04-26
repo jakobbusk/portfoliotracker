@@ -46,5 +46,13 @@ class PortfolioController {
 
     }
 
+    static async getTrades(req,res){
+        // TODO
+    }
+
+    static async createTrade(req,res){
+
+    }
+
 }
 export default PortfolioController;

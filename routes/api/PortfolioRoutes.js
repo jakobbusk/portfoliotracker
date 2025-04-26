@@ -16,4 +16,12 @@ router.post('/', checkAuth, PortfolioController.create)
 router.get('/:id',checkAuth, PortfolioController.getOverview)
 
 
+// Håndter portefølje trades
+router.get('/:id/trades',checkAuth, PortfolioController.getTrades)
+
+router.post('/:id/trades',checkAuth, PortfolioController.createTrade)
+
+
+
+
 export default router
