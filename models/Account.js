@@ -148,7 +148,16 @@ class Account {
         // Nu sender vi de nødvendige data til Transaction klassen
         try {
             const result = await transaction.create();
-            console.log(result);
+            // Her opdaterer vi kontoen med den nye balance
+
+            if (transactionType === 'deposit') {
+                this.balance += convertToTargetCurrency(amount, currency, this.currency, exchangeRate);
+            } else if (transactionType === 'withdraw') {
+                this.balance -= convertToTargetCurrency(amount, currency, this.currency, exchangeRate);
+            } else {
+                throw new Error('Invalid transaction type');
+            }
+            await this.update();
             return result;
         } catch (error) {
             console.error('Error creating transaction:', error);

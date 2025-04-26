@@ -43,7 +43,13 @@
                     { name: 'Konto', key: 'name'},
                     { name: 'Bank', key: 'bankReference' },
                     { name: 'Valuta', key: 'currency' },
-                    { name: 'Saldo', key: 'balance' },
+                    { name: 'Saldo', key: 'balance', callback: (row) => {
+                        return row.balance.toLocaleString('da-DK', {
+                            style: 'currency',
+                            currency: row.currency,
+                        });
+                        }
+                    },
                 ]
             }
 

@@ -46,7 +46,7 @@ export function convertToTargetCurrency(amount, baseCurrency, targetCurrency, ex
 
     // Omregn beløbet til kontovalutaen
     // beløb / (vekselkurs/100) - 1000dk / 0.1526 = 152,6
-    var convertedAmount = amount / exchangeRate
+    var convertedAmount = amount * exchangeRate
 
     // Her bruger vi toFixed til at sikre at vi kun har to decimaler
     // Vigtgit at vi bruger Number() til at konvertere det til et tal igen

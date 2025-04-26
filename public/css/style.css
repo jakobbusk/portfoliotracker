@@ -59,7 +59,7 @@ p {
 }
 
 .sidebar nav ul li a:hover, .active-menu-link {
-    background-color: #84837E;
+    background-color: #242424;
 }
 .active-menu-link {
     font-weight: bold;
@@ -75,8 +75,10 @@ main {
 }
 
 header {
-/*TODO*/
-font-size: 16px;
+    font-size: 16pt;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 h1 {
@@ -168,32 +170,36 @@ td {
 
 button, .button {
     text-decoration: none;
-    background-color: #84837E;
-    color: #C3C3C1;
+    background-color: #242424;
+    color: #8B8B89;
     border: none; /* Fjerner standard border */
     cursor: pointer;
-    padding: 10px 16px;
+    padding: 5px 8px;
     border-radius: 6px;
     font-size: 16px;
-    transition: opacity 0.3s;
+    transition: background-color 0.3s;
 }
-button:hover {
-    opacity: 90%;
+button:hover, .button:hover, tr:not(:has(th)):hover {
+    background-color: #2f2f2f;
 }
 
 .button-fullwidth {
     width: 100%;
 }
 
-input {
+input, select {
     width: auto;
     padding: 8px 12px;
-    border: 1px solid #D1D5DB;
+    border: none;
     border-radius: 6px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Shadow-sm */
-    background-color: white;
-    color: #000000;
+    background-color: #242424;
+    color: #8B8B89;
     font-size: 14px;
+}
+
+input:focus, select:focus {
+    border-color:#8B8B89;
+    outline: solid;
 }
 
 .flex-row {

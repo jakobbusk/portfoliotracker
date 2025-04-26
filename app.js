@@ -9,12 +9,6 @@ import webRoutes from './routes/web/webRoutes.js'
 // Initialiserer express app
 const app = express()
 
-// Middleware der logger tidspunktet for hver anmodning
-app.use((req, res, next) => {
-  console.log('Time:', Date.now())
-  next()
-})
-
 app.set('view engine', 'ejs');
 app.set('views', './views/pages');
 

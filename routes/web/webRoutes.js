@@ -31,14 +31,6 @@ router.get('/accounts/:id', (req, res) => {
   res.render('accounts/show', { title: 'Account', accountID: req.params.id })
 })
 
-router.get('/accounts/:id/deposit', (req, res) => {
-  res.render('accounts/deposit', { title: 'Transaction', accountID: req.params.id })}
-);
-
-router.get('/accounts/:id/withdraw', (req, res) => {
-  res.render('accounts/withdraw', { title: 'Transaction', accountID: req.params.id })
-});
-
 
 
 

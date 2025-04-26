@@ -9,15 +9,43 @@
                 <p><span id="accountBank"></span> - <span id="accountCurrency"></span></p>
             </div>
             <div>
-                <a href="/accounts/withdraw" class="button">Hæv penge</a>
-                <a href="/accounts/deposit" class="button">Indsæt penge</a>
-
+                <a id="transactionsButton" class="button">Transaktioner</a>
+                <a id="withdrawButton" class="button">Hæv penge</a>
+                <a id="depositButton" class="button">Indsæt penge</a>
             </div>
 
         </header>
-        <div class="flex-container">
+        <div id="depositContainer" class="flex-container" style="display: none;">
             <div class="flex-item">
-                <h2>Alle transaktioner her</p>
+                <h2>Indsæt penge</p>
+                <form id="depositForm" class="form">
+                    <label for="amount">Beløb</label>
+                    <input type="number" id="amount" name="amount" required>
+                    <label for="currency">Valuta</label>
+                    <select id="currency" required>
+                        <option value="DKK">DKK</option>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                    </select>
+                    <label for="exchangeRate">Kurs</label>
+                    <input type="number" id="exchangeRate" name="exchangeRate" required readonly>
+
+                    <p id="insertedValue"></p>
+
+                    <button type="submit">Indsæt penge</button>
+                </form>
+            </div>
+        </div>
+        <div id="withdrawContainer" class="flex-container" style="display: none;">
+            <div class="flex-item">
+                <h2>Hæv penge</p>
+
+            </div>
+        </div>
+        <div id="transactionContainer" class="flex-container">
+            <div class="flex-item">
+                <h2>Alle transaktioner her</h2>
                 <div id="transactionTable" class="table-container">
                 </div>
             </div>
@@ -31,6 +59,30 @@
     import api from '/assets/js/api.js';
     import createTable from '/assets/js/table.js';
 
+    // Hent alle knapperne
+    const transactionsButton = document.getElementById('transactionsButton');
+    const withdrawButton = document.getElementById('withdrawButton');
+    const depositButton = document.getElementById('depositButton');
+
+    transactionsButton.addEventListener('click', () => {
+        document.getElementById('transactionContainer').style.display = 'flex';
+        document.getElementById('withdrawContainer').style.display = 'none';
+        document.getElementById('depositContainer').style.display = 'none';
+    });
+    withdrawButton.addEventListener('click', () => {
+        document.getElementById('transactionContainer').style.display = 'none';
+        document.getElementById('withdrawContainer').style.display = 'flex';
+        document.getElementById('depositContainer').style.display = 'none';
+    });
+    depositButton.addEventListener('click', () => {
+        document.getElementById('transactionContainer').style.display = 'none';
+        document.getElementById('withdrawContainer').style.display = 'none';
+        document.getElementById('depositContainer').style.display = 'flex';
+    });
+
+
+
+    // hent alle steder
     const transactionTable = document.getElementById('transactionTable');
     const accountName = document.getElementById('accountName');
     const accountBank = document.getElementById('accountBank');
@@ -44,8 +96,6 @@
     // Vi tager længden af URL'en og trækker 1 fra for at få den sidste del
     const accountID = url[url.length - 1];
 
-
-
     // Funktion til at hente alle konti
     async function fetchAccount(){
         try {
@@ -56,20 +106,6 @@
             accountName.innerText = account.name;
             accountBank.innerText = account.bankReference;
             accountCurrency.innerText = account.currency;
-
-            /**
-             *             "id": 2,
-            "portfolioID": 1,
-            "portfolioName": "Pension",
-            "tradeID": null,
-            "accountID": 1,
-            "amount": 100,
-            "currency": "USD",
-            "exchangeRate": 1,
-            "balanceAfter": -100,
-            "transactionType": "withdraw",
-            "created_at": "2025-04-19T10:26:34.363Z"
-            */
 
             const options = {
                 columns: [
@@ -135,6 +171,7 @@
             const table = createTable(account.transactions, options)
             transactionTable.appendChild(table);
 
+            return account;
 
         } catch (error) {
             alert('Der skete en fejl under hentning af konti');
@@ -142,5 +179,76 @@
         }
     }
 
-    await fetchAccount();
+    const account = await fetchAccount();
+
+
+    // Logik til at indsætte penge herunder
+    // Hent valutaen og kursen fra backend
+    const depositForm = document.getElementById('depositForm');
+    const amount = document.getElementById('amount');
+    const exchangeRate = document.getElementById('exchangeRate');
+
+    // Først laver vi en event listener på valutaen
+    const currency = document.getElementById('currency');
+    // Start med at sætte valutaen til den konto vi har hentet
+    currency.value = account.currency;
+    // Så sætter vi kursen til 1
+    exchangeRate.value = 1;
+    var insertedAmount = 0;
+    currency.addEventListener('change', async (e) => {
+        console.log(accountCurrency);
+
+        const selectedCurrency = e.target.value;
+        const response = await api(`services/exchangerate/${selectedCurrency}/${account.currency}`, 'GET');
+        const data = await response.json();
+
+        exchangeRate.value = data.conversion_rate;
+        changeInsertedValue();
+    });
+    // Når vi ændrer beløbet så skal vi også have insertedValue
+    amount.addEventListener('input', (e) => {
+        changeInsertedValue();
+    });
+
+
+    function changeInsertedValue() {
+        const amountValue = parseFloat(amount.value);
+        const exchangeRateValue = parseFloat(exchangeRate.value);
+        if (isNaN(amountValue) || isNaN(exchangeRateValue)) {
+            insertedAmount = 0;
+        } else {
+            insertedAmount = amountValue * exchangeRateValue;
+        }
+
+        insertedAmount = insertedAmount.toFixed(2);
+        document.getElementById('insertedValue').innerText = `Indsat værdi: ${insertedAmount} ${account.currency}`;
+    }
+
+    depositForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const depositData = {
+            amount: parseFloat(amount.value),
+            currency: currency.value,
+            transactionType: 'deposit',
+            exchangeRate: parseFloat(exchangeRate.value),
+        }
+
+        try {
+            const response = await api(`/accounts/${accountID}/transactions`, 'POST', depositData);
+            if (response.ok) {
+                alert('Indbetaling gennemført');
+                window.location.reload();
+            } else {
+                alert('Der skete en fejl under indbetaling');
+            }
+        } catch (error) {
+            console.error('Error depositing money:', error);
+            alert('Der skete en fejl under indbetaling');
+        }
+    });
+
+
+
+
 </script>
