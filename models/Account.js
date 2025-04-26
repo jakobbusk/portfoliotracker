@@ -135,6 +135,11 @@ class Account {
     }
 
     async makeTransaction(amount,exchangeRate,currency,transactionType) {
+        const amountInTargetCurrency = convertToTargetCurrency(amount, currency, this.currency, exchangeRate);
+        // Her tjekker vi om der er penge nok på kontoen
+        if (transactionType === 'withdraw' && this.balance - amountInTargetCurrency < 0) {
+            return { error: 'Insufficient funds' };
+        }
 
         // Her laver vi en ny klasse af Transaction
         const transaction = new Transaction({
@@ -149,13 +154,10 @@ class Account {
         try {
             const result = await transaction.create();
             // Her opdaterer vi kontoen med den nye balance
-
             if (transactionType === 'deposit') {
-                this.balance += convertToTargetCurrency(amount, currency, this.currency, exchangeRate);
+                this.balance += amountInTargetCurrency;
             } else if (transactionType === 'withdraw') {
-                this.balance -= convertToTargetCurrency(amount, currency, this.currency, exchangeRate);
-            } else {
-                throw new Error('Invalid transaction type');
+                this.balance -= amountInTargetCurrency;
             }
             await this.update();
             return result;
