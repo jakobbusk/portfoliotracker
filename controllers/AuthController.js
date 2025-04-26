@@ -40,17 +40,17 @@ export default class AuthController {
             return res.status(401).json({ message: 'Unauthorized' })
         }
         // Vi henter authorization headeren
-        // Authorization headeren er i formatet "Basic base64(username:password)"
+        // Authorization headeren er i formatet "Basic base64(email:password)"
         // Vi splitter den op i to dele og tager den anden del
         const basicauth =  Buffer.from(req.headers.authorization.split(" ")[1], "base64").toString("utf-8");
-        const [username, password] = basicauth.split(":");
+        const [email, password] = basicauth.split(":");
 
 
 
-        if (!username || !password) {
+        if (!email || !password) {
             return res.status(401).json({ message: 'Unauthorized' })
         }
-        const user = await User.findBy('username', username)
+        const user = await User.findBy('email', email)
         // Hvis brugeren ikke findes så returner fejl
         if (!user) {
             return res.status(401).json({ message: 'Unauthorized' })
