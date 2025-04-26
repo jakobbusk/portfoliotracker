@@ -120,7 +120,7 @@ CREATE TABLE [Transaction]
      accountID       INT NOT NULL,
      amount          DECIMAL(18, 2) NOT NULL,-- beløb hævet/indsat
      currency        VARCHAR(3) NOT NULL,-- valuta på transaktionen i stedet for kontoen
-     exchangeRate    DECIMAL(18, 2) NOT NULL,-- vekselkurs
+     exchangeRate    DECIMAL(18, 4) NOT NULL,-- vekselkurs vi henter fra API'en
      transactionType VARCHAR(8) NOT NULL,-- deposit/withdraw
      balanceBefore   DECIMAL(18, 2) NOT NULL,-- saldo før transaktionen
      balanceAfter    DECIMAL(18, 2) NOT NULL,-- saldo efter transaktionen

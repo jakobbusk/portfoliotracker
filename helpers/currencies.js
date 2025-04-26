@@ -50,6 +50,7 @@ export function convertToTargetCurrency(amount, baseCurrency, targetCurrency, ex
 
     // Her bruger vi toFixed til at sikre at vi kun har to decimaler
     // Vigtgit at vi bruger Number() til at konvertere det til et tal igen
+    console.log(`Converted amount: ${convertedAmount}`, Number(convertedAmount.toFixed(2)));
     return Number(convertedAmount.toFixed(2));
     // For at få den korrekte exchange rate, så skal vi tage transaktionens valuta som base og kontoen som valuta mål
     // https://v6.exchangerate-api.com/v6/:YOUR-API-KEY/pair/:baseCurrency/:targetCurrency
