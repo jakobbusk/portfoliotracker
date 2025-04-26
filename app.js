@@ -23,7 +23,7 @@ app.use(express.json())
 
 app.use("/assets/",express.static('public'))
 
-app.use('/api', dbConnectionMiddleware, apiRoutes)
+app.use('/api', apiRoutes)
 
 // webRoutes
 app.use('/', webRoutes)
