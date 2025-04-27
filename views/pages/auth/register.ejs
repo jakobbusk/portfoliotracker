@@ -1,0 +1,31 @@
+<%- include('../../partials/head') %>
+
+<main>
+
+    <div class="flex-container flex-center">
+        <div class="flex-autowith">
+            <header class="flex-column">
+                <h1>Portfolio Tracker</h1>
+                <p>Velkommen til!</p>
+            </header>
+            <form id="login" class="flex-column">
+                <input type="text" name="name" id="name" placeholder="Navn"
+                pattern=".{2,}" title="Indtast et navn" required>
+
+                <input type="text" name="username" id="username" placeholder="Brugernavn"
+                pattern="[^ ]{2,}" title="Indtast et brugernavn" required>
+
+                <input type="text" name="email" id="email" placeholder="E-mail"
+                pattern="^[^@]+@{1}[^@]+\.[a-zA-Z]{2,}$" title="Indtast en gyldig e-mail" required>
+
+                <input type="password" name="password" id="password" placeholder="Password"
+                pattern="^(?=.*\d).{8,}$" title="Password skal være mindst 8 karakterer langt og indeholde mindst et tal" required>
+
+                <button type="submit" class="button-fullwidth">Registrér</button>
+                <a class="button button-fullwidth" href="/login">Log ind</a>
+            </form>
+        </div>
+    </div>
+</main>
+<%- include('../../partials/footer') %>
+<script type="module" src="/assets/js/pages/register.js"></script>
