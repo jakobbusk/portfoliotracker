@@ -10,16 +10,14 @@
             </header>
             <form id="login" class="flex-column">
                 <input type="text" name="name" id="name" placeholder="Navn"
-                pattern=".{2,}" title="Indtast et navn" required>
+                pattern="^.{2,}$" title="Indtast et navn på mindst 2 bogstaver" required>
 
-                <input type="text" name="username" id="username" placeholder="Brugernavn"
-                pattern="[^ ]{2,}" title="Indtast et brugernavn" required>
+                <input type="text" name="username" id="username" placeholder="Brugernavn" 
+                pattern="^[^ ]{2,}$" title="Brugernavn må ikke indeholde mellemrum" required>
 
-                <input type="text" name="email" id="email" placeholder="E-mail"
-                pattern="^[^@]+@{1}[^@]+\.[a-zA-Z]{2,}$" title="Indtast en gyldig e-mail" required>
+                <input type="text" name="email" id="email" placeholder="E-mail" required>
 
-                <input type="password" name="password" id="password" placeholder="Password"
-                pattern="^(?=.*\d).{8,}$" title="Password skal være mindst 8 karakterer langt og indeholde mindst et tal" required>
+                <input type="password" name="password" id="password" placeholder="Password" required>
 
                 <button type="submit" class="button-fullwidth">Registrér</button>
                 <a class="button button-fullwidth" href="/login">Log ind</a>

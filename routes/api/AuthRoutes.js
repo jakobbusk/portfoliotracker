@@ -18,7 +18,7 @@ router.post('/logout', AuthController.logout)
 router.post('/register', AuthController.register)
 
 // Change password route
-router.put('/change-password',checkAuth, AuthController.changePassword)
+router.put('/change-password', AuthController.changePassword)
 
 
 export default router
