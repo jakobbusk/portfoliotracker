@@ -29,7 +29,10 @@ class Portfolio {
     static async all(userID, columns = Portfolio.columns) {
         const result = await db.request().input('userID', userID)
             .query(`
-                SELECT ${columns.map(col => 'p.' + col).join(', ')}, a.name AS accountName
+                SELECT
+                ${columns.map(col => 'p.' + col).join(', ')},
+                a.name AS accountName,
+                a.currency AS accountCurrency
                 FROM ${this.tableName} p
                 JOIN Account a ON p.accountID = a.id
                 WHERE a.userID = @userID

@@ -73,7 +73,7 @@ main {
     padding-left: 10vw;
     padding-right: 10vw;
     background-color: #1B1B19;
-    
+
 }
 
 header {
@@ -193,6 +193,12 @@ button:hover, .button:hover, tr:not(:has(th)):hover, input:hover, select:hover {
 }
 tr, input, button, .button, select{
     transition: background-color 0.3s; /*transition når man fjerner musen*/
+}
+.button-negative {
+    background-color: #ae2d2d;
+}
+.button-postive {
+    background-color: #46634C;
 }
 
 input, select {
