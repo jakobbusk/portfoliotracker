@@ -2,7 +2,6 @@ import { register } from '/assets/js/auth.js';
 
 document.getElementById('register').addEventListener('submit', async function (event) {
     event.preventDefault();
-    alert("hej")
     //hent værdier fra inputfelter
     const name = document.getElementById('name').value;
     const username = document.getElementById('username').value;
