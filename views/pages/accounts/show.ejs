@@ -9,7 +9,7 @@
                 <p><span id="accountBank"></span> - <span id="accountCurrency"></span></p>
             </div>
             <div class="flex-row">
-                <a id="transactionsButton" class="button">Transaktioner</a>
+                <a id="transactionsButton" class="button button-active">Transaktioner</a>
                 <a id="withdrawButton" class="button">Hæv penge</a>
                 <a id="depositButton" class="button">Indsæt penge</a>
                 <button id="closeOpenButton" class="button-negative">Luk konto</button>
@@ -51,7 +51,7 @@
             </div>
         </div>
         <div id="transactionContainer" class="flex-container">
-            <div class="flex-item">
+            <div class="flex-item-fullwidth">
                 <h2>Alle transaktioner her</h2>
                 <div id="transactionTable" class="table-container">
                 </div>
@@ -76,16 +76,27 @@
         document.getElementById('transactionContainer').style.display = 'flex';
         document.getElementById('withdrawContainer').style.display = 'none';
         document.getElementById('depositContainer').style.display = 'none';
+        
+        //highlight knap tilhørende aktiv side
+        transactionsButton.classList.add('button-active')
+        withdrawButton.classList.remove('button-active')
+        depositButton.classList.remove('button-active')
     });
     withdrawButton.addEventListener('click', () => {
         document.getElementById('transactionContainer').style.display = 'none';
         document.getElementById('withdrawContainer').style.display = 'flex';
         document.getElementById('depositContainer').style.display = 'none';
+        transactionsButton.classList.remove('button-active')
+        withdrawButton.classList.add('button-active')
+        depositButton.classList.remove('button-active')
     });
     depositButton.addEventListener('click', () => {
         document.getElementById('transactionContainer').style.display = 'none';
         document.getElementById('withdrawContainer').style.display = 'none';
         document.getElementById('depositContainer').style.display = 'flex';
+        transactionsButton.classList.remove('button-active')
+        withdrawButton.classList.remove('button-active')
+        depositButton.classList.add('button-active')
     });
 
     closeOpenButton.addEventListener('click', async () => {

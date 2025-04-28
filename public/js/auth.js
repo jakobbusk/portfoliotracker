@@ -39,8 +39,20 @@ async function changePassword(oldPassword, newPassword, confirmNewPassword){
     return res;
 }
 
+async function register(name, username, email, password){
+    const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, username, name, password })
+    });
+    return res;
+}
+
 export {
     checkCredentials,
     checkLoginOnLoad,
     changePassword,
+    register,
 }

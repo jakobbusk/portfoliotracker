@@ -95,6 +95,9 @@ export default class AuthController {
         if (newPassword !== confirmNewPassword) {
             return res.status(400).json({ message: 'New passwords do not match' })
         }
+        if (!newPassword || newPassword.trim() === '' || newPassword.length < 5 || newPassword.length > 50) {
+            return res.status(400).json({ message: 'Mistake on password' })
+        }
 
 
         // Vi henter brugeren fra database vha username som er gemt i session

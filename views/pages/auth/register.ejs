@@ -8,14 +8,14 @@
                 <h1>Portfolio Tracker</h1>
                 <p>Velkommen til!</p>
             </header>
-            <form id="login" class="flex-column">
+            <form id="register" class="flex-column">
                 <input type="text" name="name" id="name" placeholder="Navn"
                 pattern="^.{2,}$" title="Indtast et navn på mindst 2 bogstaver" required>
 
                 <input type="text" name="username" id="username" placeholder="Brugernavn" 
-                pattern="^[^ ]{2,}$" title="Brugernavn må ikke indeholde mellemrum" required>
+                pattern="^[^ ]{2,}$" title="Brugernavn skal være mindst 2 tegn og må ikke indeholde mellemrum" required>
 
-                <input type="text" name="email" id="email" placeholder="E-mail" required>
+                <input type="email" name="email" id="email" placeholder="E-mail" required>
 
                 <input type="password" name="password" id="password" placeholder="Password" required>
 
