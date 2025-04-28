@@ -27,7 +27,20 @@ async function checkLoginOnLoad(){
     }
 }
 
+async function changePassword(oldPassword, newPassword, confirmNewPassword){
+    let email = localStorage.email;
+    const res = await fetch('/api/auth/change-password', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ oldPassword, newPassword, confirmNewPassword, email })
+    });
+    return res;
+}
+
 export {
     checkCredentials,
-    checkLoginOnLoad
+    checkLoginOnLoad,
+    changePassword,
 }

@@ -89,8 +89,7 @@ export default class AuthController {
 
 
     static async changePassword(req, res) {
-        const { oldPassword, newPassword, confirmNewPassword } = req.body
-
+        const { oldPassword, newPassword, confirmNewPassword, email } = req.body
 
         // Validering af password
         if (newPassword !== confirmNewPassword) {
@@ -99,7 +98,7 @@ export default class AuthController {
 
 
         // Vi henter brugeren fra database vha username som er gemt i session
-        const user = await User.findBy('username', req.user.username)
+        const user = await User.findBy('email', email)
         // Hvis brugeren ikke findes, så returner fejl
         if (!user) {
             return res.status(400).json({ message: 'User not found' })

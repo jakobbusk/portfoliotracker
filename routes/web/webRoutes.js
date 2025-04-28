@@ -15,6 +15,10 @@ router.get('/register', (req, res) => {
   res.render('auth/register', { title: 'Register' })
 });
 
+router.get('/changepassword', (req, res) => {
+  res.render('auth/changepassword', { title: 'Change Password' })
+});
+
 router.get('/dashboard', (req, res) => {
   res.render('dashboard', { title: 'Home' })
 });
