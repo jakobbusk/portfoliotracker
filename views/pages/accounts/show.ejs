@@ -70,6 +70,7 @@
     const transactionsButton = document.getElementById('transactionsButton');
     const withdrawButton = document.getElementById('withdrawButton');
     const depositButton = document.getElementById('depositButton');
+    const closeOpenButton = document.getElementById('closeOpenButton');
 
     transactionsButton.addEventListener('click', () => {
         document.getElementById('transactionContainer').style.display = 'flex';
@@ -87,14 +88,23 @@
         document.getElementById('depositContainer').style.display = 'flex';
     });
 
-
+    closeOpenButton.addEventListener('click', async () => {
+        try {
+            let state = 'close';
+            if (account.closed){state = 'open'}
+            const response = await api(`/accounts/${accountID}/${state}`,`PUT`)
+            location.reload()
+        } catch (error) {
+            alert('Der skete en fejl under åbning/lukning af konto')
+            console.log('Error opening/closing account: ' + error)
+        }
+    });
 
     // hent alle steder
     const transactionTable = document.getElementById('transactionTable');
     const accountName = document.getElementById('accountName');
     const accountBank = document.getElementById('accountBank');
     const accountCurrency = document.getElementById('accountCurrency');
-    const closeOpenButton = document.getElementById('closeOpenButton');
 
 
     // Vi ved at den første del af URL'en er /accounts/
@@ -115,9 +125,10 @@
             accountBank.innerText = account.bankReference;
             accountCurrency.innerText = account.currency;
 
+            //ændr open/close account knap til open hvis account er lukket
             if (account.closed){
                 closeOpenButton.innerText = "Åben konto";
-                closeOpenButton.classList = "button-positive";
+                closeOpenButton.className = "button-positive";
             };
 
 

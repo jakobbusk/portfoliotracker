@@ -197,8 +197,14 @@ tr, input, button, .button, select{
 .button-negative {
     background-color: #ae2d2d;
 }
-.button-postive {
+.button-negative:hover {
+    background-color: #852222;
+}
+.button-positive {
     background-color: #46634C;
+}
+.button-positive:hover {
+    background-color: #364d3c;
 }
 
 input, select {

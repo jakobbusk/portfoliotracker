@@ -50,6 +50,21 @@
                         });
                         }
                     },
+                    { name: 'Status', key: 'closed', callback: (row) => {
+                        let innerText;
+                        let stylingClass;
+                        if (row.closed){
+                            innerText = "Lukket";
+                            stylingClass = "negative";
+                        } else {
+                            innerText = "Åben";
+                            stylingClass = "positive";
+                        };
+                        let element = document.createElement('span');
+                        element.innerText = innerText;
+                        element.className = stylingClass;
+                        return element;
+                    }},
                 ]
             }
 
