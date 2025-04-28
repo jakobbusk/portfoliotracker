@@ -26,8 +26,6 @@
 <script type="module">
     import api from '/assets/js/api.js';
     import createTable from '/assets/js/table.js';
-    const accountTable = document.getElementById('accountTable');
-
 
     // Funktion til at hente alle konti
     async function fetchAccounts(){
@@ -53,9 +51,7 @@
                 ]
             }
 
-            const table = createTable(accounts, options);
-            accountTable.appendChild(table);
-
+            createTable(accounts, options, "accountTable");
         } catch (error) {
             alert('Der skete en fejl under hentning af konti');
             console.error('Error fetching accounts:', error);

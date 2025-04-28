@@ -40,6 +40,10 @@ router.get('/portfolios/create', (req, res) => {
 });
 
 
+router.get('/portfolios/:id', (req, res) => {
+  res.render('portfolios/show', { title: 'Portfolio' })
+});
+
 
 
 

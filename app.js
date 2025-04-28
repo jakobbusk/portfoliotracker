@@ -1,7 +1,5 @@
 import express from 'express'
-
-// Henter vores db connecti⁄on middleware
-import dbConnectionMiddleware from './middleware/db.js'
+import db from './database/db.js'
 
 import apiRoutes from './routes/api/apiRoutes.js'
 import webRoutes from './routes/web/webRoutes.js'
@@ -27,7 +25,18 @@ app.use('/', webRoutes)
 if(process.env.NODE_ENV !== 'production') {
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
-  console.log('Server listening on port', port)
+
+  try {
+    db.connect();
+
+    console.log('Connected to database');
+    console.log('Server listening on port', port)
+} catch (error) {
+  console.error('Database connection failed:', error);
+  console.error('Error starting server:', error)
+  process.exit(1);
+
+}
 })
 }
 

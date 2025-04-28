@@ -16,13 +16,41 @@ class PortfolioController {
 
     }
 
-    static async getOverview(req, res) {
+    static async getPortfolio(req, res) {
         const portfolioID = req.params.id;
+        const userID = req.user.id;
 
+        try {
+            const portfolio = await Portfolio.findByID(portfolioID, userID);
+            if (!portfolio) {
+                return res.status(404).json({ message: 'Portfolio not found' });
+            }
+            return res.status(200).json(portfolio);
+        } catch (error) {
+            return res.status(500).json({ message: 'Error fetching portfolio', error });
+        }
+
+
+    }
+
+    static async getPositions(req, res) {
+        const portfolioID = req.params.id;
+        const userID = req.user.id;
+
+        try {
+            const positions = await Portfolio.getPositions(portfolioID, userID);
+            if (!positions) {
+                return res.status(404).json({ message: 'Positions not found' });
+            }
+            return res.status(200).json(positions);
+        } catch (error) {
+            return res.status(500).json({ message: 'Error fetching positions', error });
+        }
     }
 
     static async create(req, res) {
         const {name, accountID} = req.body;
+        const userID = req.user.id;
 
         // Validering af input
         // Sikre at den authentificerede bruger ejer kontoen
@@ -31,12 +59,12 @@ class PortfolioController {
             return res.status(404).json({ message: 'Account not found' });
         }
 
-        const portfolio = new Portfolio({name, accountID});
+        const portfolio = new Portfolio({name, accountID, userID});
 
         try {
             const result = await portfolio.create();
-            console.log(result);
-            res.status(201).json(result);
+
+            res.status(201).json({portfolioID: result.recordset[0].Id});
 
         } catch (error) {
             console.error('Error creating portfolio:', error);
@@ -47,7 +75,19 @@ class PortfolioController {
     }
 
     static async getTrades(req,res){
-        // TODO
+        const portfolioID = req.params.id;
+        const userID = req.user.id;
+
+        try {
+            const trades = await Portfolio.getTrades(portfolioID, userID);
+            if (!trades) {
+                return res.status(404).json({ message: 'Trades not found' });
+            }
+            return res.status(200).json(trades);
+        } catch (error) {
+            return res.status(500).json({ message: 'Error fetching trades', error });
+        }
+
     }
 
     static async createTrade(req,res){

@@ -102,7 +102,6 @@ h2 {
     align-items: center;
 }
 .flex-container .flex-item {
-    width: 100%;
     flex-shrink: 1;
     background-color: #1E1E1E;
     padding: 18px 18px;
@@ -111,6 +110,13 @@ h2 {
 
 .flex-container .flex-autowith {
     width: auto;
+    background-color: #1E1E1E;
+    padding: 15px 25px;
+    border-radius: 6px;
+}
+
+.flex-container .flex-item-fullwidth {
+    width: 100%;
     background-color: #1E1E1E;
     padding: 15px 25px;
     border-radius: 6px;

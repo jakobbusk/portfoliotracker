@@ -1,0 +1,84 @@
+<%- include('../../partials/head') %>
+
+<%- include('../../partials/navbar') %>
+
+    <main class="flex-column">
+        <header>
+            <div>
+                <h1 style="text-align: center;">Opret portefølje</h1>
+            </div>
+        </header>
+
+        <div class="flex-container">
+            <div class="flex-item">
+                <form id="createPortfolioForm" class="form-container">
+                    <input type="text" id="name" placeholder="Portefølje navn" required>
+                    <select id="account" required>
+                    </select>
+                    <button type="submit">Indsæt penge</button>
+                </form>
+            </div>
+        </div>
+    </main>
+<%- include('../../partials/footer') %>
+
+<script type="module">
+    import api from '/assets/js/api.js';
+
+    const createPortfolioForm = document.getElementById('createPortfolioForm');
+    const accountSelect = document.getElementById('account');
+
+    createPortfolioForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const name = document.getElementById('name').value;
+        const accountID = document.getElementById('account').value;
+        if (!name || !accountID) {
+            alert('Udfyld venligst alle felter');
+            return;
+        }
+
+        const portfolioData = {
+            name,
+            accountID,
+        };
+
+        try {
+            const response = await api('/portfolios', 'POST', portfolioData);
+
+            if (response.ok) {
+                const result = await response.json();
+
+                window.location.href = `/portfolios/${result.portfolioID}`;
+
+            } else {
+                alert('Der skete en fejl under oprettelse af kontoen');
+            }
+        } catch (error) {
+            console.error('Error creating account:', error);
+            alert('Der skete en fejl under oprettelse af kontoen');
+        }
+    });
+
+    // Funktion til at hente alle konti
+    async function fetchAccounts(){
+        try {
+            const response = await api('accounts','GET');
+            const accounts = await response.json();
+
+            accounts.forEach(account => {
+                const option = document.createElement('option');
+                option.value = account.id;
+                option.textContent = account.name;
+                accountSelect.appendChild(option);
+            });
+
+        } catch (error) {
+            alert('Der skete en fejl under hentning af konti');
+            console.error('Error fetching accounts:', error);
+
+        }
+    }
+    fetchAccounts();
+
+</script>

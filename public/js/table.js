@@ -1,5 +1,6 @@
 // funktion til at lave en tabel baseret på data fra backend
-function createTable(data, options){
+function createTable(data, options, tableID){
+
     const { columns, link} = options;
 
     // Opret tabel element
@@ -60,7 +61,17 @@ function createTable(data, options){
 
     // Tilføj bodyen til tabellen
     table.appendChild(tbody);
-    return table
+
+    // Tilføj tabellen til bodyen
+    const tableContainer = document.getElementById(tableID);
+    if(!tableContainer){
+        console.error(`Table container with ID ${tableID} not found`);
+        return;
+    }
+    // Fjerner gamle indhold - til når man skifter mellem views
+    tableContainer.innerHTML = '';
+    tableContainer.appendChild(table); // Tilføj tabellen til child
+    return;
 
 }
 

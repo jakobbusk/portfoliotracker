@@ -1,0 +1,153 @@
+<%- include('../../partials/head') %>
+
+<%- include('../../partials/navbar') %>
+
+    <main class="flex-column">
+        <header>
+            <div>
+                <h1 id="portfolioName"></h1>
+                <p id="portfolioDesc"></p>
+            </div>
+
+            <div class="flex-container">
+                <a id="portfolioDashboardLink" class="button">Dashboard</a>
+                <a id="portfolioHistoryLink" class="button">Handels historik</a>
+                <a id="portfolioTradeLink" class="button">Registrer handel</a>
+            </div>
+        </header>
+
+
+        <div id="portfolioDashboard" style="display: block;">
+            <%- include('./dashboard') %>
+        </div>
+
+        <div id="portfolioHistory" style="display: none;">
+            <%- include('./history') %>
+        </div>
+        <div id="portfolioTrade" style="display: none;">
+            <%- include('./trade') %>
+        </div>
+
+    </main>
+<%- include('../../partials/footer') %>
+
+<script type="module">
+    import api from '/assets/js/api.js';
+    import createTable from '/assets/js/table.js';
+
+    // Skift mellem visninger
+    const portfolioDashboardLink = document.getElementById('portfolioDashboardLink');
+    const portfolioHistoryLink = document.getElementById('portfolioHistoryLink');
+    const portfolioTradeLink = document.getElementById('portfolioTradeLink');
+    function setView(view) {
+        if(view === 'dashboard') {
+            fetchPortfolioPositions();
+        } else if(view === 'history') {
+            fetchPortfolioHistory();
+        } else if(view === 'trade') {
+
+        }
+
+        document.getElementById('portfolioDashboard').style.display = view === 'dashboard' ? 'block' : 'none';
+        document.getElementById('portfolioHistory').style.display = view === 'history' ? 'block' : 'none';
+        document.getElementById('portfolioTrade').style.display = view === 'trade' ? 'block' : 'none';
+    }
+    portfolioDashboardLink.addEventListener('click', () => {
+        setView('dashboard');
+    });
+    portfolioHistoryLink.addEventListener('click', () => {
+        setView('history');
+    });
+    portfolioTradeLink.addEventListener('click', () => {
+        setView('trade');
+    });
+
+
+    // Vi ved at den første del af URL'en er /portfolios/
+    // og den sidste del er portfolioID
+    // Vi skal have fat i portfolioID
+    const url = window.location.href.split('/');
+    // Vi tager længden af URL'en og trækker 1 fra for at få den sidste del
+    const portfolioID = url[url.length - 1];
+
+
+    // Funktion til at hente porteføljeoplysninger
+    const portfolioName = document.getElementById('portfolioName');
+    const portfolioDesc = document.getElementById('portfolioDesc');
+    async function fetchPortfolio(){
+        try {
+            const response = await api(`portfolios/${portfolioID}`,'GET')
+            const portfolioDetails = await response.json();
+            portfolioName.innerText = portfolioDetails.name;
+            portfolioDesc.innerText = `Tilknyttede konto: ${portfolioDetails.accountName}`;
+
+
+        } catch (error) {
+            alert('Der skete en fejl under hentning af porteføljen');
+            console.error('Error fetching portfolios:', error);
+        }
+    }
+    await fetchPortfolio();
+
+    // Funktion til at hente porteføljens positioner
+    const portfolioPosTable = document.getElementById('portfolioPosTable');
+    const portfolioTableOptions = {
+        columns: [
+            { name: 'Aktie', key: 'name' },
+            { name: 'Antal', key: 'quantity' },
+            { name: 'Kurs', key: 'assetPrice' },
+            { name: 'Værdi', key: 'value' },
+        ]
+    }
+    async function fetchPortfolioPositions() {
+        try {
+            const response = await api(`portfolios/${portfolioID}/positions`, 'GET');
+            const portfolioPositions = await response.json();
+
+
+            createTable(portfolioPositions, portfolioTableOptions, "portfolioPosTable");
+
+        } catch (error) {
+            alert('Der skete en fejl under hentning af porteføljens positioner');
+            console.error('Error fetching portfolio positions:', error);
+        }
+    }
+    await fetchPortfolioPositions();
+
+
+    // Logik til at hente handels historik
+    const portfolioHistoryTable = document.getElementById('portfolioHistoryTable');
+    const portfolioHistoryTableOptions = {
+        columns: [
+            { name: 'Aktie', key: 'assetName' },
+            { name: 'Antal', key: 'quantity' },
+            { name: 'Kurs', key: 'tradeRate' },
+            { name: 'Værdi', key: 'value', callback: (row) => {
+                return row.value.toLocaleString('da-DK', {
+                    style: 'currency',
+                    currency: row.currency,
+                });
+                }
+            },
+            { name: 'Type', key: 'tradeType', callback: (row) => {
+                return row.type === 'buy' ? 'Køb' : 'Salg';
+                }
+            },
+            { name: 'Valuta', key: 'currency' },
+            { name: 'Dato', key: 'date' },
+        ]
+    }
+
+    async function fetchPortfolioHistory() {
+        try {
+            const response = await api(`portfolios/${portfolioID}/trades`, 'GET');
+            const portfolioHistory = await response.json();
+
+            createTable(portfolioHistory, portfolioHistoryTableOptions, "portfolioHistoryTable");
+
+        } catch (error) {
+            alert('Der skete en fejl under hentning af porteføljens handels historik');
+            console.error('Error fetching portfolio history:', error);
+        }
+    }
+</script>

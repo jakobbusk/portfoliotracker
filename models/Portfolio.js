@@ -4,12 +4,13 @@ class Portfolio {
 
     static tableName = 'Portfolio';
 
-    static columns = ['id', 'name', 'accountID', 'totalAcquisitionValue', 'totalMarketValue', 'totalUnrealisedPnL', 'created_at', 'updated_at'];
+    static columns = ['id', 'name', 'accountID','userID', 'totalAcquisitionValue', 'totalMarketValue', 'totalUnrealisedPnL', 'created_at', 'updated_at'];
 
     constructor(data = {}){
         this.id = data.id;
         this.name = data.name;
         this.accountID = data.accountID;
+        this.userID = data.userID;
         this.totalAcquisitionValue = data.totalAcquisitionValue || 0;
         this.totalMarketValue = data.totalMarketValue || 0;
         this.totalUnrealisedPnL = data.totalUnrealisedPnL || 0;
@@ -42,17 +43,87 @@ class Portfolio {
         return result.recordset.map(row => new Portfolio(row));
     }
 
-    static async findByID(id, accountID, userID, columns = Portfolio.columns) {
+    static async findByID(id, userID, columns = Portfolio.columns) {
+        const query = db.request()
+        try {
+            const result = await query.input('id', id).input('userID', userID)
+                .query(`SELECT
+                    ${columns.map(col => 'p.' + col).join(', ')},
+                    pos.quantity AS positionQuantity,
+                    a.name AS accountName
+                    FROM ${Portfolio.tableName} p
+                    LEFT JOIN Position pos ON p.id = pos.portfolioID
+                    LEFT JOIN Account a ON p.accountID = a.id
+                    WHERE p.id = @id AND p.userID = @userID`)
 
+            if (result.recordset.length === 0) return null;
+            const portfolio = new Portfolio(result.recordset[0]);
+            if(result.recordset[0].positionQuantity) {
+                portfolio.positions = result.recordset.map(row => {
+                    return {
+                        quantity: row.positionQuantity,
+                    }
+                })
+            } else portfolio.positions = [];
+
+            return portfolio;
+
+        } catch (error) {
+            console.error('Error fetching portfolio:', error);
+            throw error;
+        }
     }
+
+    static async getPositions(id, userID) {
+        const query = db.request()
+        try {
+            const result = await query.input('id', id).input('userID', userID)
+                .query(`SELECT
+                    pos.quantity AS positionQuantity,
+                    pos.id AS positionID,
+                    p.name AS portfolioName
+                    FROM Position pos
+                    LEFT JOIN Portfolio p ON pos.portfolioID = p.id
+                    WHERE p.id = @id AND p.userID = @userID`)
+
+            return result.recordset
+
+        } catch (error) {
+            console.error('Error fetching portfolio positions:', error);
+            throw error;
+        }
+    }
+
+    static async getTrades(id, userID) {
+        const query = db.request()
+        try {
+            const result = await query.input('id', id).input('userID', userID)
+                .query(`SELECT
+                    t.id AS tradeID,
+                    t.quantity AS tradeQuantity,
+                    t.tradeRate AS tradeRate,
+                    p.name AS portfolioName
+                    FROM Trade t
+                    LEFT JOIN Portfolio p ON t.portfolioID = p.id
+                    WHERE p.id = @id AND p.userID = @userID`)
+
+            return result.recordset
+        } catch (error) {
+            console.error('Error fetching portfolio trades:', error);
+            throw error;
+        }
+    }
+
 
     async create() {
         const result = await db.request()
             .input('name', this.name)
+            .input('userID', this.userID)
             .input('accountID', this.accountID)
-            .query(`INSERT INTO ${Portfolio.tableName} (name, accountID)
-                VALUES (@name, @accountID)`);
-        console.log(result);
+            .query(`INSERT INTO ${Portfolio.tableName} (name, accountID, userID)
+                OUTPUT INSERTED.Id
+                VALUES (@name, @accountID, @userID)`);
+
         return result;
     }
 

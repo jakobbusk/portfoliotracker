@@ -90,7 +90,6 @@
 
 
     // hent alle steder
-    const transactionTable = document.getElementById('transactionTable');
     const accountName = document.getElementById('accountName');
     const accountBank = document.getElementById('accountBank');
     const accountCurrency = document.getElementById('accountCurrency');
@@ -182,8 +181,7 @@
                 ]
             }
 
-            const table = createTable(account.transactions, options)
-            transactionTable.appendChild(table);
+            createTable(account.transactions, options, "transactionTable");
 
             return account;
 

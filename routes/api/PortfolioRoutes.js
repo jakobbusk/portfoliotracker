@@ -13,8 +13,10 @@ router.get('/',checkAuth, PortfolioController.getAll)
 router.post('/', checkAuth, PortfolioController.create)
 
 // Henter en portefølje
-router.get('/:id',checkAuth, PortfolioController.getOverview)
+router.get('/:id',checkAuth, PortfolioController.getPortfolio)
 
+// Henter positioner for en portefølje
+router.get('/:id/positions',checkAuth, PortfolioController.getPositions)
 
 // Håndter portefølje trades
 router.get('/:id/trades',checkAuth, PortfolioController.getTrades)

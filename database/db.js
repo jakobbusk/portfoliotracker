@@ -20,14 +20,6 @@ const config = {
 // i forhold til mange requests.
 const pool = new sql.ConnectionPool(config);
 
-try {
-    await pool.connect();
-    console.log('Connected to database');
-} catch (error) {
-    console.error('Database connection failed:', error);
-    process.exit(1);
-}
-
 export default pool
 export { sql }
 

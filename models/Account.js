@@ -33,7 +33,7 @@ class Account {
         const query = db.request()
         try {
             const result = await query.input('id', id).input('userID', userID)
-                .query(`SELECT ${columns.join(', ')} FROM ${Account.table} WHERE id = @id AND userID = @userID`)
+                .query(`SELECT TOP 1 ${columns.join(', ')} FROM ${Account.table} WHERE id = @id AND userID = @userID`)
             if (result.recordset.length === 0) return null;
             return new Account(result.recordset[0]);
         } catch (error) {
@@ -135,6 +135,10 @@ class Account {
     }
 
     async makeTransaction(amount,exchangeRate,currency,transactionType) {
+        if(this.closed) {
+            return { error: 'Account is closed' };
+        }
+
         const amountInTargetCurrency = convertToTargetCurrency(amount, currency, this.currency, exchangeRate);
         // Her tjekker vi om der er penge nok på kontoen
         if (transactionType === 'withdraw' && this.balance - amountInTargetCurrency < 0) {
@@ -162,7 +166,6 @@ class Account {
             await this.update();
             return result;
         } catch (error) {
-            console.error('Error creating transaction:', error);
             throw error;
 
         }

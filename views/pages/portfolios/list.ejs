@@ -10,28 +10,30 @@
             </div>
 
             <div>
-                <a href="/accounts/create" class="button">Opret portefølje</a>
+                <a href="/portfolios/create" class="button">Opret portefølje</a>
             </div>
 
         </header>
 
         <div class="flex-container">
-            <div class="flex-item stats-card">
-              <h3>Total værdi i DKK</h3>
-              <p> 10%</p>
-              <p class="stats-card-value">10</p>
+            <div class="flex-column ">
+                <div class="flex-item">
+                  <h3>Total portefølje værdi i DKK</h3>
+                  <p>10</p>
+                </div>
+                <div class="flex-item">
+                  <h3>Total realiseret gevinst</h3>
+                </div>
             </div>
-            <div class="flex-item">
-              <h3>Total realiseret gevinst </h3>
+            <div>
+                <div class="flex-item flex-item-fullwidth">
+                  <h3>Total urealiseret gevinst</h3>
+                </div>
+            </div>
+        </div>
 
-            </div>
-            <div class="flex-item">
-              <h3>Total urealiseret gevinst</h3>
-
-            </div>
-          </div>
         <div class="flex-container">
-            <div class="flex-item">
+            <div class="flex-item flex-item-fullwidth">
                 <div id="portfolioTable" class="table-container">
                 </div>
             </div>
@@ -42,7 +44,6 @@
 <script type="module">
     import api from '/assets/js/api.js';
     import createTable from '/assets/js/table.js';
-    const portfolioTable = document.getElementById('portfolioTable');
 
 
     // Funktion til at hente alle konti
@@ -61,8 +62,7 @@
                 ]
             }
 
-            const table = createTable(portfolios, options);
-            portfolioTable.appendChild(table);
+            const table = createTable(portfolios, options, "portfolioTable");
 
         } catch (error) {
             alert('Der skete en fejl under hentning af konti');
