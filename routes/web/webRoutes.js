@@ -31,6 +31,15 @@ router.get('/accounts/:id', (req, res) => {
   res.render('accounts/show', { title: 'Account', accountID: req.params.id })
 })
 
+router.get('/portfolios', (req, res) => {
+  res.render('portfolios/list', { title: 'Portfolio' })
+})
+
+router.get('/portfolios/create', (req, res) => {
+  res.render('portfolios/create', { title: 'Create Portfolio' })
+});
+
+
 
 
 
