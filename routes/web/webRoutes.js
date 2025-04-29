@@ -1,7 +1,10 @@
 import express from 'express'
-const router = express.Router()
+const router = express.Router({mergeParams: true})
+import accountRoutes from './AccountRoutes.js'
+import portfolioRoutes from './PortfolioRoutes.js'
 
-
+router.use('/accounts', accountRoutes)
+router.use('/portfolios', portfolioRoutes)
 
 router.get('/', (req, res) => {
   res.redirect('/dashboard')
@@ -23,36 +26,9 @@ router.get('/dashboard', (req, res) => {
   res.render('dashboard', { title: 'Home' })
 });
 
-router.get('/accounts', (req, res) => {
-  res.render('accounts/list', { title: 'Accounts' })
-})
-
-router.get('/accounts/create', (req, res) => {
-  res.render('accounts/create', { title: 'Create Account' })
-});
-
-router.get('/accounts/:id', (req, res) => {
-  res.render('accounts/show', { title: 'Account', accountID: req.params.id })
-})
-
-router.get('/portfolios', (req, res) => {
-  res.render('portfolios/list', { title: 'Portfolio' })
-})
-
-router.get('/portfolios/create', (req, res) => {
-  res.render('portfolios/create', { title: 'Create Portfolio' })
-});
-
-
-router.get('/portfolios/:id', (req, res) => {
-  res.render('portfolios/show', { title: 'Portfolio' })
-});
-
 
 router.get('/stocks/:symbol/historical', (req, res) => {
   res.render('stocks/historical', { title: 'Stock', symbol: req.params.symbol })
 })
-
-
 
 export default router
