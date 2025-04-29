@@ -5,7 +5,7 @@ const router = express.Router({mergeParams: true})
 
 router.get('/symbols',checkAuth, servicesController.symbolLookup)
 
-router.get('/symbols/:symbol', checkAuth, servicesController.symbolLookup)
+router.get('/symbols/:symbol', checkAuth, servicesController.currentStockPrice)
 
 router.get('/symbols/:symbol/historical', checkAuth, servicesController.historicalData)
 
