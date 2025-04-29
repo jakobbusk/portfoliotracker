@@ -137,7 +137,7 @@
 
             //ændr open/close account knap til open hvis account er lukket
             if (account.closed){
-                closeOpenButton.innerText = "Åben konto";
+                closeOpenButton.innerText = "Åbn konto";
                 closeOpenButton.className = "button-positive";
             };
 
@@ -270,9 +270,12 @@
 
         try {
             const response = await api(`/accounts/${accountID}/transactions`, 'POST', depositData);
+            const body = await response.json();
             if (response.ok) {
                 alert('Indbetaling gennemført');
                 window.location.reload();
+            } else if (response.status === 400){
+                alert(body.message)
             } else {
                 alert('Der skete en fejl under indbetaling');
             }
@@ -311,18 +314,18 @@
 
         try {
             const response = await api(`accounts/${accountID}/transactions`, 'POST', withdrawData);
+            const body = await response.json();
             if (response.ok) {
                 alert('Udbetaling gennemført');
                 window.location.reload();
-            } else if(response.status == 400) {
-                alert('Der er dækning på kontoen');
+            } else if (response.status === 400) {
+                alert(body.message);
             } else {
                 alert('Der skete en fejl under udbetaling');
-
             }
         } catch (error) {
             console.error('Error withdrawing money:', error);
-            alert('Der skete en fejl under udbetaling');
+            alert('Der skete en fejl under udbetaling'+"catch");
         }
     });
 </script>
