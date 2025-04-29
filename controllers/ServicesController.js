@@ -1,5 +1,6 @@
 import { findStocksBySymbol } from '../services/finnhubAPI/index.js'
 import { getConversionRate } from '../services/exchangerateAPI/index.js';
+import { historicalStockData } from '../services/alphavantage.js';
 class ServicesController {
 
     // Søg efter aktie
@@ -18,11 +19,9 @@ class ServicesController {
     // Hent sidste års aktiekurser for given symbol
     static async historicalData(req,res){
         const symbol = req.params.symbol
-        const from = req.query.from
-        const to = req.query.to
 
         try {
-            const result = await findStocksBySymbol(symbol, from, to)
+            const result = await historicalStockData(symbol)
             return res.status(200).json(result)
         } catch (error) {
             return res.status(500).json({ message: 'Error fetching historical data', error });
