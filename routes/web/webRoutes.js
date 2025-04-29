@@ -48,10 +48,14 @@ router.get('/portfolios/:id', (req, res) => {
   res.render('portfolios/show', { title: 'Portfolio' })
 });
 
-
-router.get('/stocks/:symbol/historical', (req, res) => {
-  res.render('stocks/historical', { title: 'Stock', symbol: req.params.symbol })
+router.get('/symbols', (req, res) => {
+  res.render('symbols/search', { title: 'Symbols' })
 })
+
+router.get('/symbols/:symbol/historical', (req, res) => {
+  res.render('symbols/historical', { title: 'Stock', symbol: req.params.symbol })
+})
+
 
 
 

@@ -7,9 +7,10 @@ export async function historicalStockData (symbol) {
         if (data['Time Series (Daily)']) {
             const rawData = data['Time Series (Daily)'];
 
-            const parsedData = Object.entries(rawData).map(([date, values]) => ({
-                [date]: values['4. close'],
-            }))
+            const parsedData = {};
+            Object.entries(rawData).forEach(([date, values]) => {
+                parsedData[date] = values['4. close'];
+            });
 
             return parsedData;
         } else {
