@@ -15,6 +15,20 @@ class ServicesController {
         }
     }
 
+    // Hent sidste års aktiekurser for given symbol
+    static async historicalData(req,res){
+        const symbol = req.params.symbol
+        const from = req.query.from
+        const to = req.query.to
+
+        try {
+            const result = await findStocksBySymbol(symbol, from, to)
+            return res.status(200).json(result)
+        } catch (error) {
+            return res.status(500).json({ message: 'Error fetching historical data', error });
+        }
+    }
+
     // Lav getConversionRate
     static async getConversionRate(req,res){
         const base = req.params.base
