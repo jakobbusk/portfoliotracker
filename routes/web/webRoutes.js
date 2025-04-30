@@ -2,24 +2,10 @@ import express from 'express'
 const router = express.Router({mergeParams: true})
 import accountRoutes from './AccountRoutes.js'
 import portfolioRoutes from './PortfolioRoutes.js'
-
-router.use('/accounts', accountRoutes)
-router.use('/portfolios', portfolioRoutes)
+import AuthRoutes from './AuthRoutes.js'
 
 router.get('/', (req, res) => {
   res.redirect('/dashboard')
-});
-
-router.get('/login', (req, res) => {
-  res.render('auth/login', { title: 'Login' })
-});
-
-router.get('/register', (req, res) => {
-  res.render('auth/register', { title: 'Register' })
-});
-
-router.get('/changepassword', (req, res) => {
-  res.render('auth/changepassword', { title: 'Change Password' })
 });
 
 router.get('/dashboard', (req, res) => {
@@ -33,5 +19,10 @@ router.get('/symbols', (req, res) => {
 router.get('/symbols/:symbol/historical', (req, res) => {
   res.render('symbols/historical', { title: 'Stock', symbol: req.params.symbol })
 })
+
+router.use('/accounts', accountRoutes)
+router.use('/portfolios', portfolioRoutes)
+router.use(AuthRoutes)
+
 
 export default router
