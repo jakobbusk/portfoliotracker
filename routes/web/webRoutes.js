@@ -27,8 +27,9 @@ router.get('/dashboard', (req, res) => {
 });
 
 
-router.get('/stocks/:symbol/historical', (req, res) => {
-  res.render('stocks/historical', { title: 'Stock', symbol: req.params.symbol })
+
+router.get('/symbols/:symbol/historical', (req, res) => {
+  res.render('symbols/historical', { title: 'Stock', symbol: req.params.symbol })
 })
 
 export default router

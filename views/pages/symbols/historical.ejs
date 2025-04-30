@@ -1,0 +1,162 @@
+<%- include('../../partials/head') %>
+
+<%- include('../../partials/navbar') %>
+
+<main class="flex-column">
+	<header>
+		<div>
+			<h1 id="stockName"></h1>
+		</div>
+	</header>
+
+	<div class="flex-container flex-column">
+		<div class="flex-row flex-center">
+			<button onclick="setRange('1m')">1m</button>
+			<button onclick="setRange('3m')">3m</button>
+			<button onclick="setRange('6m')">6m</button>
+			<button onclick="setRange('1y')">1y</button>
+			<button onclick="setRange('3y')">3y</button>
+			<button onclick="setRange('5y')">5y</button>
+			<button onclick="setRange('max')">Max</button>
+		</div>
+		<div class="flex-item flex-item-fullwidth" id="historicalDataChart">
+
+		</div>
+
+
+</main>
+<%- include('../../partials/footer') %>
+
+<script type="module">
+	import api from '/assets/js/api.js';
+    import createTable from '/assets/js/table.js';
+
+
+
+    // Vi ved at den URL'en ser sådan her ud:
+    // /stocks/:symbol/historical
+    // Vi skal have fat i symbol
+    const url = window.location.href.split('/');
+    const symbol = url[url.length - 2];
+    const stockName = document.getElementById('stockName');
+    stockName.innerText = symbol.toUpperCase() + ' - Historisk data';
+
+    let data = [];
+    let chart;
+
+    // Funktion til at ændre datoer
+    function setRange(range) {
+        const dateNow = new Date();
+        let dateFrom;
+
+        switch (range) {
+            case "1m":
+                dateFrom = new Date(dateNow.setMonth(dateNow.getMonth() - 1));
+                break;
+            case "3m":
+                dateFrom = new Date(dateNow.setMonth(dateNow.getMonth() - 3));
+                break;
+
+            case "6m":
+                dateFrom = new Date(dateNow.setMonth(dateNow.getMonth() - 6));
+                break;
+            case "1y":
+                dateFrom = new Date(dateNow.setFullYear(dateNow.getFullYear() - 1));
+                break;
+            case "3y":
+                dateFrom = new Date(dateNow.setFullYear(dateNow.getFullYear() - 3));
+                break;
+
+            case "5y":
+                dateFrom = new Date(dateNow.setFullYear(dateNow.getFullYear() - 5));
+                break;
+            default:
+                dateFrom = new Date(dateNow.setFullYear(dateNow.getFullYear() - 100));
+                break;
+        }
+
+        let filteredData = data.filter(data => {
+            const dataDate = new Date(data.x);
+            return dataDate >= dateFrom && dataDate <= new Date();
+        });
+
+        chart.updateSeries([{ name: symbol.toUpperCase(), data: filteredData }]);
+
+    }
+
+    // Her definerer vi funktionen setRange som en global funktion
+    // så den kan tilgås fra knapperne
+    window.setRange = setRange;
+
+
+
+    // Funktion til at hente historiske data
+    async function fetchHistoricalData() {
+        try {
+            const response = await api(`services/symbols/${symbol}/historical`, 'GET');
+            const historicalData = await response.json();
+
+            data = Object.entries(historicalData).map(([date, price]) => ({
+                x: new Date(date).toISOString().split('T')[0],
+                y: parseFloat(price)
+            }));
+
+            const historicalDataChartElement = document.getElementById('historicalDataChart')
+
+            const chartOptions = {
+                chart: {
+                    type: 'line',
+                    height: 350,
+
+                    zoom: {
+                        enabled: false
+                    },
+                    toolbar: {
+                        show: false
+                    }
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 2
+                },
+                title: {
+                    text: `${symbol.toUpperCase()} - Historisk data`,
+                },
+                xaxis: {
+                    type: 'datetime',
+                    labels: {
+                        format: 'yyyy-MM-dd'
+                    }
+                },
+                tooltip: {
+                    x: {
+                        format: 'dd-MM-yyyy'
+                    }
+                },
+                yaxis: {
+                    title: {
+                        text: 'Price (USD)'
+                    },
+                    type: 'numeric'
+                },
+                series: [{
+                    name: symbol.toUpperCase(),
+                    data
+                }]
+            };
+
+            chart = new ApexCharts(historicalDataChartElement, chartOptions);
+            chart.render();
+
+            setRange("1y");
+
+        } catch (error) {
+            console.error('Error fetching historical data:', error);
+            alert('Der skete en fejl under hentning af historiske data');
+        }
+    }
+
+    await fetchHistoricalData();
+
+
+</script>

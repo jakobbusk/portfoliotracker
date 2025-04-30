@@ -1,0 +1,81 @@
+<%- include('../../partials/head') %>
+
+<%- include('../../partials/navbar') %>
+
+<main class="flex-column">
+	<header>
+		<div>
+			<h1>Søg efter symbols her</h1>
+		</div>
+	</header>
+
+	<div class="flex-container flex-column">
+		<div class="flex-row flex-center">
+            <div class="flex-container">
+                <form id="symbolLookupForm" class="flex-row">
+                    <input type="text" id="symbolLookup" placeholder="Søg efter symbol" />
+                    <button type="submit" id="searchButton">Søg</button>
+                </form>
+            </div>
+		</div>
+		<div class="flex-item flex-item-fullwidth">
+            <div id="symbolsSearchTable"></div>
+
+		</div>
+    </div>
+
+
+</main>
+<%- include('../../partials/footer') %>
+<script type="module">
+	import api from '/assets/js/api.js';
+    import createTable from '/assets/js/table.js';
+
+	// Logik til at håndtere symbolopslag
+	const symbolLookupForm = document.getElementById('symbolLookupForm');
+	const symbolLookup = document.getElementById('symbolLookup');
+	const searchButton = document.getElementById('searchButton');
+
+	symbolLookupForm.addEventListener('submit', async (event) => {
+		event.preventDefault();
+
+		const symbol = symbolLookup.value;
+
+		try {
+			const response = await api(`services/symbols?q=${symbol}`, 'GET');
+			if (response.ok) {
+				const data = await response.json();
+                const options = {
+                columns: [
+                    {
+                        name: 'Navn',
+                        key: 'description',
+                        callback: (value) => {
+                            console.log(value);
+                            const atagElement = document.createElement('a');
+                            atagElement.href = `/symbols/${value.symbol}/historical`;
+                            atagElement.innerText = value.description;
+                            return atagElement;
+                        }
+                    },
+                    {
+                        name: 'Ticker',
+                        key: 'symbol'
+
+                    },
+                ]
+            }
+
+                createTable(data, options, "symbolsSearchTable");
+
+			} else {
+				alert('Der skete en fejl ved opslag af symbolet');
+			}
+		} catch (error) {
+			console.error('Error fetching stock data:', error);
+		}
+	});
+
+
+
+</script>
