@@ -26,7 +26,9 @@ router.get('/dashboard', (req, res) => {
   res.render('dashboard', { title: 'Home' })
 });
 
-
+router.get('/symbols', (req, res) => {
+  res.render('symbols/search', { title: 'Symbols' })
+})
 
 router.get('/symbols/:symbol/historical', (req, res) => {
   res.render('symbols/historical', { title: 'Stock', symbol: req.params.symbol })
