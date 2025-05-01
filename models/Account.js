@@ -90,7 +90,6 @@ class Account {
                 }
             }
 
-            account.balance = balanceAfter;
             return account;
 
         } catch (error) {
