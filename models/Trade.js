@@ -92,7 +92,7 @@ export default class Trade {
         }
 
         // Nu tjekker vi om vi kan sælge aktien
-        if (!this.tradeType && position.quantity < this.quantity) {
+        if (this.tradeType == 'sell'  && position.quantity < this.quantity) {
             return {
                 error: 'Not enough shares to sell',
             }
@@ -115,7 +115,8 @@ export default class Trade {
 
             const newTrade = new Trade(tradeQuery.recordset[0]);
             const tradeValue = this.quantity * this.tradeRate + this.tradingFee;
-            const transactionQuery = await account.makeTransaction(tradeValue, exchangeRate, 'USD', this.tradeType ? 'withdraw' : 'deposit', this.portfolioID, newTrade.id);
+            const transactionType = this.tradeType === 'buy' ? 'withdraw' : 'deposit';
+            const transactionQuery = await account.makeTransaction(tradeValue, exchangeRate, 'USD', transactionType, this.portfolioID, newTrade.id);
             console.log('Transaction query:', transactionQuery);
 
             if(transactionQuery.rowsAffected[0] === 0) {

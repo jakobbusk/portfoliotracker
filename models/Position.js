@@ -36,7 +36,8 @@ export default class Position {
                     FROM ${Position.tableName} p
                     JOIN Portfolio port ON p.portfolioID = port.id
                     JOIN Asset a ON p.assetID = a.id
-                    WHERE port.userID = @userID AND port.id = @portfolioID
+                    WHERE port.userID = @userID AND port.id = @portfolioID AND p.quantity > 0
+
                 `)
 
             if (result.recordset.length === 0) return [];
@@ -61,7 +62,7 @@ export default class Position {
                     FROM ${Position.tableName} p
                     JOIN Portfolio port ON p.portfolioID = port.id
                     JOIN Asset a ON p.assetID = a.id
-                    WHERE port.userID = @userID
+                    WHERE port.userID = @userID AND p.quantity > 0
                     ORDER BY p.quantity * p.GAK DESC
                 `)
 
