@@ -80,7 +80,7 @@ export default class Trade {
             }
         }
         // Find positionen forbundet med porteføljen
-        const position = await Position.findByPortfolioIDAndAssetID(this.portfolioID, this.assetID);
+        let position = await Position.findByPortfolioIDAndAssetID(this.portfolioID, this.assetID);
         if (!position) {
             // Hvis positionen ikke findes, så opretter vi en ny
             const newPosition = new Position({
@@ -114,8 +114,8 @@ export default class Trade {
                 VALUES (@portfolioID, @assetID, @quantity, @tradeRate, @tradingFee, @tradeType)`);
 
             const newTrade = new Trade(tradeQuery.recordset[0]);
-            const amount = this.quantity * this.tradeRate + this.tradingFee;
-            const transactionQuery = await account.makeTransaction(amount, exchangeRate, 'USD', this.tradeType ? 'withdraw' : 'deposit', this.portfolioID, newTrade.id);
+            const tradeValue = this.quantity * this.tradeRate + this.tradingFee;
+            const transactionQuery = await account.makeTransaction(tradeValue, exchangeRate, 'USD', this.tradeType ? 'withdraw' : 'deposit', this.portfolioID, newTrade.id);
             console.log('Transaction query:', transactionQuery);
 
             if(transactionQuery.rowsAffected[0] === 0) {
@@ -123,16 +123,7 @@ export default class Trade {
             }
 
             // Opdater positionen
-            if (this.tradeType) {
-                // Hvis det er et køb, så opdaterer vi positionen
-                position.quantity += this.quantity;
-                position.GAK = ((position.GAK * (position.quantity - this.quantity)) + (this.tradeRate * this.quantity)) / position.quantity;
-            } else {
-                // Hvis det er et salg, så opdaterer vi positionen
-                position.quantity -= this.quantity;
-            }
-            await position.update();
-            console.log('Position updated:', position);
+            await position.update(this.tradeType, this.quantity, tradeValue);
 
             return true;
         } catch (error) {

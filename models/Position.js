@@ -89,43 +89,75 @@ export default class Position {
         }
     }
 
-    // Logik til at opdatere en position
-    // Hvis positionen ikke findes, så opretter vi en ny
-    async updateOrCreate({ portfolioID, assetID }) {
+    async create() {
         const query = db.request()
         try {
-            const result = await query.input('portfolioID', portfolioID)
-                .input('assetID', assetID)
-                .query(`SELECT * FROM ${Position.tableName} WHERE portfolioID = @portfolioID AND assetID = @assetID`)
+            const result = await query.input('portfolioID', this.portfolioID)
+                .input('assetID', this.assetID)
+                .input('quantity', this.quantity)
+                .input('unrealisedPnL', this.unrealisedPnL)
+                .input('GAK', this.GAK)
+                .query(`INSERT INTO ${Position.tableName} (portfolioID, assetID, quantity, unrealisedPnL, GAK) OUTPUT INSERTED.* VALUES (@portfolioID, @assetID, @quantity, @unrealisedPnL, @GAK)`);
 
-            if (result.recordset.length === 0) {
-                // Opret en ny position
-                const newPosition = new Position({
-                    portfolioID,
-                    assetID,
-                });
-                return await newPosition.create();
-            } else {
-                // Opdater den eksisterende position
-                const existingPosition = new Position(result.recordset[0]);
-                return existingPosition;
-            }
-
-
+            return result.recordset[0];
         } catch (error) {
-            console.error('Error updating or creating position:', error);
+            console.error('Error creating position:', error);
+            throw error;
+        }
+
+    }
+
+    // Logik til at opdatere en positionens GAK og quantity
+    async update(tradeType, tradeQuantity, tradeValue) {
+
+        if(tradeType === 'buy') {
+            // Hvis det er en buy trade så skal vi opdatere GAK
+            // GAK = (GAK * quantity + tradeValue) / (quantity + tradeQuantity)
+            this.GAK = (this.GAK * this.quantity + tradeValue) / (this.quantity + tradeQuantity);
+            this.quantity = this.quantity + tradeQuantity;
+
+        } else if(tradeType === 'sell') {
+            this.quantity = this.quantity - tradeQuantity;
+        }
+
+        this.updated_at = new Date();
+        const query = db.request()
+        try {
+            console.log('Updating position:', this);
+            const result = await query.input('portfolioID', this.portfolioID)
+                .input('assetID', this.assetID)
+                .input('quantity', this.quantity)
+                .input('unrealisedPnL', this.unrealisedPnL)
+                .input('GAK', this.GAK)
+                .input('updated_at', this.updated_at)
+                .query(`UPDATE ${Position.tableName} SET quantity = @quantity, unrealisedPnL = @unrealisedPnL, GAK = @GAK, updated_at = @updated_at
+                    WHERE portfolioID = @portfolioID AND assetID = @assetID`);
+
+            return result.recordset;
+        } catch (error) {
+            console.error('Error updating position:', error);
             throw error;
         }
     }
 
-    // Logik til at opdatere en position
-    static async update(addedQuantity, ) {
+    // Logik til at opdatere PnL
+    async updatePnL(currentPrice) {
+        // unrealisedPnL = (currentPrice - GAK) * quantity
+        this.unrealisedPnL = (currentPrice - this.GAK) * this.quantity;
+        this.updated_at = new Date();
         const query = db.request()
-        const newQuantity = this.quantity + addedQuantity;
-        // Udregn den nye GAK
-        // const newGAK = (this.GAK * this.quantity + addedQuantity * this.tradeRate) / newQuantity;
-        // this.GAK = newGAK;
+        try {
+            const result = await query.input('portfolioID', this.portfolioID)
+                .input('assetID', this.assetID)
+                .input('unrealisedPnL', this.unrealisedPnL)
+                .input('updated_at', this.updated_at)
+                .query(`UPDATE ${Position.tableName} SET unrealisedPnL = @unrealisedPnL, updated_at = @updated_at
+                    WHERE portfolioID = @portfolioID AND assetID = @assetID`);
 
-        this.updateOrCreate(this.portfolioID, this.assetID,)
+            return result.recordset;
+        } catch (error) {
+            console.error('Error updating position PnL:', error);
+            throw error;
+        }
     }
 }
