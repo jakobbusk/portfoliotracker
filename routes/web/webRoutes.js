@@ -16,8 +16,8 @@ router.get('/symbols', (req, res) => {
   res.render('symbols/search', { title: 'Symbols' })
 })
 
-router.get('/symbols/:symbol/historical', (req, res) => {
-  res.render('symbols/historical', { title: 'Stock', symbol: req.params.symbol })
+router.get('/symbols/:symbol', (req, res) => {
+  res.render('symbols/symbol', { title: 'Stock', symbol: req.params.symbol })
 })
 
 router.use('/accounts', accountRoutes)
