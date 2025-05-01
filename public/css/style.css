@@ -252,3 +252,16 @@ input:focus, select:focus {
 input::placeholder {
     color: #8B8B89;
 }
+
+/*apexcharts*/
+.apexcharts-tooltip {
+    background-color: #1E1E1E !important; /*important for at overrule apexcharts indbyggede styling*/
+    color: #84837E !important;
+    border-color: #242424 !important;
+    box-shadow: none !important;
+  }
+  .apexcharts-tooltip-title {
+    background-color: #1B1B19 !important; /*important for at overrule apexcharts indbyggede styling*/
+    color: #C3C3C1 !important;
+    border-color: #242424 !important;
+  }

@@ -10,9 +10,9 @@
             </div>
 
             <div class="flex-container">
-                <a id="portfolioDashboardLink" class="button">Dashboard</a>
+                <a id="portfolioDashboardLink" class="button button-active">Dashboard</a>
                 <a id="portfolioHistoryLink" class="button">Handels historik</a>
-                <a id="portfolioTradeLink" class="button">Registrer handel</a>
+                <a id="portfolioTradeLink" href="/symbols" class="button">Registrer handel</a>
             </div>
         </header>
 
@@ -51,6 +51,26 @@
         document.getElementById('portfolioDashboard').style.display = view === 'dashboard' ? 'block' : 'none';
         document.getElementById('portfolioHistory').style.display = view === 'history' ? 'block' : 'none';
         document.getElementById('portfolioTrade').style.display = view === 'trade' ? 'block' : 'none';
+
+        switch (view) {
+            case 'dashboard':
+                portfolioDashboardLink.classList.add('button-active')
+                portfolioHistoryLink.classList.remove('button-active')
+                portfolioTradeLink.classList.remove('button-active')
+                break;
+            case 'history':
+                portfolioDashboardLink.classList.remove('button-active')
+                portfolioHistoryLink.classList.add('button-active')
+                portfolioTradeLink.classList.remove('button-active')
+                break;
+            case 'trade':
+                portfolioDashboardLink.classList.remove('button-active')
+                portfolioHistoryLink.classList.remove('button-active')
+                portfolioTradeLink.classList.add('button-active')
+                break;
+            default:
+                break;
+        }
     }
     portfolioDashboardLink.addEventListener('click', () => {
         setView('dashboard');
@@ -61,8 +81,6 @@
     portfolioTradeLink.addEventListener('click', () => {
         setView('trade');
     });
-
-    setView('trade');
 
     // Vi ved at den første del af URL'en er /portfolios/
     // og den sidste del er portfolioID

@@ -31,7 +31,7 @@
 <script type="module">
 	import api from '/assets/js/api.js';
     import createTable from '/assets/js/table.js';
-
+    import {createLineChart} from '/assets/js/chart.js';
 
 
     // Vi ved at den URL'en ser sådan her ud:
@@ -89,8 +89,6 @@
     // så den kan tilgås fra knapperne
     window.setRange = setRange;
 
-
-
     // Funktion til at hente historiske data
     async function fetchHistoricalData() {
         try {
@@ -102,7 +100,8 @@
                 y: parseFloat(price)
             }));
 
-            const historicalDataChartElement = document.getElementById('historicalDataChart')
+            //foreslår af fjerne hele kommentaren under og bruge funktionen til at generere chart i stedet
+            /*const historicalDataChartElement = document.getElementById('historicalDataChart')
 
             const chartOptions = {
                 chart: {
@@ -147,7 +146,17 @@
             };
 
             chart = new ApexCharts(historicalDataChartElement, chartOptions);
-            chart.render();
+            chart.render();*/
+
+            chart = await createLineChart(
+                data,
+                {
+                    title: `${symbol.toUpperCase()} - Historisk data`, 
+                    seriesName: symbol.toUpperCase(), 
+                    currency: 'USD'
+                },
+                'historicalDataChart'
+            )
 
             setRange("1y");
 
