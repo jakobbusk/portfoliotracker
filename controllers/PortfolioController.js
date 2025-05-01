@@ -92,6 +92,7 @@ class PortfolioController {
 
     static async createTrade(req,res){
 
+
     }
 
 }

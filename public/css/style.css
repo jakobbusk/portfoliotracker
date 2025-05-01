@@ -102,6 +102,7 @@ header {
 .flex-center {
     justify-content: center;
     align-items: center;
+    text-align: center;
 }
 .flex-container .flex-item {
     flex-shrink: 1;

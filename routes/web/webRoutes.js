@@ -20,6 +20,10 @@ router.get('/symbols/:symbol', (req, res) => {
   res.render('symbols/symbol', { title: 'Stock', symbol: req.params.symbol })
 })
 
+router.get('/symbols/:symbol/trade', (req, res) => {
+  res.render('symbols/trade', { title: 'Køb', symbol: req.params.symbol })
+})
+
 router.use('/accounts', accountRoutes)
 router.use('/portfolios', portfolioRoutes)
 router.use(AuthRoutes)

@@ -57,6 +57,19 @@
                         key: 'symbol'
 
                     },
+					{
+						name: 'Handlinger',
+						key: 'symbol',
+						callback: (value) => {
+							const symbol = value.symbol;
+							const link = document.createElement('a');
+							link.className = 'table-button'
+							link.href = `/symbols/${symbol}/trade`;
+							link.innerText = 'Køb';
+							return link;
+						}
+
+					}
                 ]
             }
 

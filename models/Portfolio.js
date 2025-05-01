@@ -20,6 +20,7 @@ class Portfolio {
         // Værdier tilføjet fra join
         if('accountName' in data) this.accountName = data.accountName;
         if('accountCurrency' in data) this.accountCurrency = data.accountCurrency;
+        if('accountBalance' in data) this.accountBalance = data.accountBalance;
 
     }
 
@@ -33,7 +34,8 @@ class Portfolio {
                 SELECT
                 ${columns.map(col => 'p.' + col).join(', ')},
                 a.name AS accountName,
-                a.currency AS accountCurrency
+                a.currency AS accountCurrency,
+                a.balance AS accountBalance
                 FROM ${this.tableName} p
                 JOIN Account a ON p.accountID = a.id
                 WHERE a.userID = @userID

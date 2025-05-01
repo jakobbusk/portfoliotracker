@@ -18,11 +18,10 @@
 
         </header>
         <div id="depositContainer" class="flex-container" style="display: none;">
-            <div class="flex-item">
-                <h2>Indsæt penge</p>
-                <form id="depositForm" class="form flex-column">
-                    <label for="amount">Beløb</label>
-                    <input type="number" id="amount" name="amount" min="0" step="0.01" required>
+            <div class="flex-item flex-item-fullwidth ">
+                <h2>Indsæt penge</h2>
+                <form id="depositForm" class="flex-center flex-column">
+                    <input type="number" id="amount" name="amount" min="0" step="0.01" placeholder="Beløb" required>
                     <label for="currency">Valuta</label>
                     <select id="currency" required>
                         <option value="DKK">DKK</option>
@@ -32,23 +31,21 @@
                     </select>
                     <label for="exchangeRate">Kurs</label>
                     <input type="number" id="exchangeRate" name="exchangeRate" required readonly>
-
                     <p id="insertedValue"></p>
-
                     <button type="submit">Indsæt penge</button>
                 </form>
             </div>
         </div>
         <div id="withdrawContainer" class="flex-container" style="display: none;">
-            <div class="flex-item">
-                <h2>Hæv penge</p>
-                    <form id="withdrawForm" class="form">
-                        <label for="withdrawAmount">Beløb</label>
-                        <input type="number" id="withdrawAmount" name="withdrawAmount" required>
-                        <p id="withdrawedValue"></p>
-                        <button type="submit">Hæv penge</button>
+            <div class="flex-item flex-item-fullwidth">
+                <h2>Hæv penge</h2>
+                <div class="flex-center flex-column">
+                    <form id="withdrawForm" class="flex-column">
+                            <input type="number" id="withdrawAmount" name="withdrawAmount" placeholder="Beløb" required>
+                            <p id="withdrawedValue"></p>
+                            <button type="submit">Hæv penge</button>
                     </form>
-
+                </div>
             </div>
         </div>
         <div id="transactionContainer" class="flex-container">
@@ -77,7 +74,7 @@
         document.getElementById('transactionContainer').style.display = 'flex';
         document.getElementById('withdrawContainer').style.display = 'none';
         document.getElementById('depositContainer').style.display = 'none';
-        
+
         //highlight knap tilhørende aktiv side
         transactionsButton.classList.add('button-active')
         withdrawButton.classList.remove('button-active')

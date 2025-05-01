@@ -1,0 +1,194 @@
+<%- include('../../partials/head') %>
+
+<%- include('../../partials/navbar') %>
+
+<main class="flex-column">
+    <header>
+        <div>
+            <h1 id="stockName"></h1>
+        </div>
+    </header>
+
+    <div class="flex-container flex-column">
+        <div class="flex-item flex-item-fullwidth">
+            <form id="makeTrade" class="flex-column flex-center">
+                <label for="quantity">Antal</label>
+                <input type="number" id="quantity" value="1" required>
+                <label for="tradeRate">Aktie kurs i USD</label>
+                <input type="number" id="tradeRate" placeholder="Henter kurs..." readonly required>
+                <label for="tradingFee">Handelsgebyr i USD</label>
+                <input type="number" id="tradingFee" value="0" min="0" step="0.01" required>
+                <label for="portfolio">Portefølje</label>
+                <select id="portfolio" required>
+                    <option value="" disabled selected>Vælg portefølje</option>
+                </select>
+                <p>
+                    Total pris for handel i akties valuta:
+                    <span id="totalPrice"></span>
+                </p>
+                <p>
+                    Saldo efter handel i kontovaluta:
+                    <span id="accountBalanceAfter"></span>
+                </p>
+                <p>
+                    Valutakurs:
+                    <span id="exchangeRate"></span>
+                </p>
+                <button type="submit">Udfør handel</button>
+            </form>
+
+        </div>
+    </div>
+</main>
+<%- include('../../partials/footer') %>
+
+<script type="module">
+    import api from '/assets/js/api.js';
+    import createTable from '/assets/js/table.js';
+
+
+
+    // Vi ved at den URL'en ser sådan her ud:
+    // /symbols/:symbol/trade
+    // Vi skal have fat i symbol
+    const url = window.location.href.split('/');
+    const symbol = url[url.length - 2].toUpperCase();
+    const stockName = document.getElementById('stockName');
+    stockName.innerText = `Køb ${symbol}`;
+
+    // Til kurs ændring
+    let portfolioCurrency = 'USD';
+    let exchangeRate = 1;
+    let accountBalance = 0;
+    let accountBalanceAfter = 0;
+    // Data for formen
+    const quantityInput = document.getElementById('quantity');
+    const tradeRateInput = document.getElementById('tradeRate');
+    const tradingFeeInput = document.getElementById('tradingFee');
+    const portfolioSelect = document.getElementById('portfolio');
+    const accountBalanceAfterText = document.getElementById('accountBalanceAfter');
+    const exchangeRateText = document.getElementById('exchangeRate')
+    exchangeRateText.innerText = exchangeRate
+
+    // hent aktiekurs
+    async function getStockPrice() {
+        try {
+            const response = await api(`services/symbols/${symbol}`, 'GET');
+            const result = await response.json();
+
+            if(result.error) {
+                console.log(response.error);
+                alert('Ikke flere api kald tilbage');
+            }else if (result.price) {
+                const stockPrice = result.price;
+                tradeRateInput.value = stockPrice;
+                calculatePrice();
+            } else {
+                alert('Der skete en fejl ved hentning af aktiekurs');
+            }
+        } catch (error) {
+            console.error('Fejl ved hentning af aktiekurs:', error);
+        }
+    }
+    await getStockPrice();
+
+    // hent porteføljer så vi kan finde den rigtige portefølje
+    async function fetchPortfolios() {
+        try {
+            const response = await api('portfolios', 'GET');
+            if (response.ok) {
+                const portfolios = await response.json();
+                portfolios.forEach(portfolio => {
+                    const option = document.createElement('option');
+                    option.value = portfolio.id;
+                    option.textContent = `${portfolio.name} - ${Intl.NumberFormat('da-DK', { style: 'currency', currency: portfolio.accountCurrency }).format(portfolio.accountBalance)}`;
+                    portfolioSelect.appendChild(option);
+                });
+                return portfolios;
+            } else {
+                alert('Der skete en fejl ved hentning af porteføljer');
+            }
+        } catch (error) {
+            console.error('Fejl ved hentning af porteføljer:', error);
+        }
+    }
+    const portfolios = await fetchPortfolios();
+    // Event listener til portefølje skift
+    portfolioSelect.addEventListener('change', async (event) => {
+        const selectedPortfolioId = parseInt(event.target.value); // Parseint fordi vi får værdien i text
+        const selectedPortfolio = portfolios.find(portfolio => portfolio.id === selectedPortfolioId);
+
+        if (selectedPortfolio) {
+            accountBalance = selectedPortfolio.accountBalance;
+            portfolioCurrency = selectedPortfolio.accountCurrency;
+            await getExchangeRate(selectedPortfolio.accountCurrency)
+        }
+    });
+
+    // Funktion til at tjekke hvis portefølje valutaen er anderledes fra USD
+    // Hent exchangerate hvis den er
+    async function getExchangeRate(target) {
+        if(target == 'USD') {
+            exchangeRate = 1;
+        } else {
+            try {
+                const response = await api(`services/exchangerate/USD/${target}`, 'GET');
+                const data = await response.json();
+                exchangeRate = data.conversion_rate;
+
+            } catch (error) {
+                console.log(error);
+                alert("Kan ikke hente kurs værdien")
+
+
+            }
+        }
+        exchangeRateText.innerText = exchangeRate
+        calculatePrice()
+
+    }
+
+
+    // Tilføj event listener til quantity, tradeRate og tradingFee
+    quantityInput.addEventListener('input', calculatePrice);
+    tradeRateInput.addEventListener('input', calculatePrice);
+    tradingFeeInput.addEventListener('input', calculatePrice);
+
+    function calculatePrice() {
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const tradeRate = parseFloat(tradeRateInput.value) || 0;
+        const tradingFee = parseFloat(tradingFeeInput.value) || 0;
+
+        // Beregn total pris for aktien samt tradingFee
+        const totalPrice = (quantity * tradeRate) + tradingFee;
+        const intlTotalPrice = Intl.NumberFormat('da-DK', {
+            style: 'currency',
+            currency: 'USD' }
+        ).format(totalPrice)
+        document.getElementById('totalPrice').innerText = `${intlTotalPrice} `;
+
+        // Udregn saldo på konto efter i kontos valuta
+        // Hvis en portefølje er valgt
+        accountBalanceAfter = accountBalance - (totalPrice * exchangeRate)
+        const intlAccountTotalPrice = Intl.NumberFormat('da-DK', {
+            style: 'currency',
+            currency: portfolioCurrency }
+        ).format(accountBalanceAfter)
+        accountBalanceAfterText.innerHTML = `${intlAccountTotalPrice}`
+    }
+
+
+
+    const makeTradeForm = document.getElementById('makeTrade')
+
+    // event til submit og køb papir
+    makeTradeForm.addEventListener('submit',  async (event) => {
+        event.preventDefault();
+        if(accountBalanceAfter < 0) {
+            alert("Du har ikke dækning")
+            return
+        }
+    })
+
+
+</script>

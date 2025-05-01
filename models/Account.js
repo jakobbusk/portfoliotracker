@@ -135,13 +135,13 @@ class Account {
 
     async makeTransaction(amount,exchangeRate,currency,transactionType) {
         if(this.closed) {
-            return { error: 'Account is closed' };
+            return { error: 'Konto er lukket' };
         }
 
         const amountInTargetCurrency = convertToTargetCurrency(amount, currency, this.currency, exchangeRate);
         // Her tjekker vi om der er penge nok på kontoen
         if (transactionType === 'withdraw' && this.balance - amountInTargetCurrency < 0) {
-            return { error: 'Insufficient funds' };
+            return { error: 'Utilstrækkelig dækning' };
         }
 
         // Her laver vi en ny klasse af Transaction

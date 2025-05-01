@@ -93,10 +93,10 @@ export default class AuthController {
 
         // Validering af password
         if (newPassword !== confirmNewPassword) {
-            return res.status(400).json({ message: 'New passwords do not match' })
+            return res.status(400).json({ message: 'Nye passwords matcher ikke' })
         }
         if (!newPassword || newPassword.trim() === '' || newPassword.length < 5 || newPassword.length > 50) {
-            return res.status(400).json({ message: 'Mistake on password' })
+            return res.status(400).json({ message: 'Fejl på password' })
         }
 
 
@@ -104,12 +104,12 @@ export default class AuthController {
         const user = await User.findBy('email', email)
         // Hvis brugeren ikke findes, så returner fejl
         if (!user) {
-            return res.status(400).json({ message: 'User not found' })
+            return res.status(400).json({ message: 'Bruger ikke fundet' })
         }
 
         // Hvis det gamle password ikke matcher, så returner fejl
         if (user.password !== oldPassword) {
-            return res.status(400).json({ message: 'Old password is incorrect' })
+            return res.status(400).json({ message: 'Gammelt password er forkert' })
         }
 
         // Opdater password
@@ -118,9 +118,9 @@ export default class AuthController {
             await user.update()
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ message: 'Password update failed' })
+            return res.status(500).json({ message: 'Passwordopdatering fejlede' })
         }
 
-        return res.status(200).json({ message: 'Password updated' })
+        return res.status(200).json({ message: 'Passwordopdatering fejlede' })
     }
 }
