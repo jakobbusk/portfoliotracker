@@ -1,5 +1,6 @@
 import Account from "../models/Account.js";
 import Portfolio from "../models/Portfolio.js";
+import Position from "../models/Position.js";
 
 class PortfolioController {
 
@@ -14,6 +15,17 @@ class PortfolioController {
             return res.status(500).json({ message: 'Error fetching portfolios', error });
         }
 
+    }
+
+    static async getTop5Positions(req, res) {
+        const userID = req.user.id;
+
+        try {
+            const positions = await Position.top5(userID);
+            return res.status(200).json(positions);
+        } catch (error) {
+            return res.status(500).json({ message: 'Error fetching top 5 positions', error });
+        }
     }
 
     static async getPortfolio(req, res) {
@@ -38,12 +50,13 @@ class PortfolioController {
         const userID = req.user.id;
 
         try {
-            const positions = await Portfolio.getPositions(portfolioID, userID);
+            const positions = await Position.allByPortfolioID(portfolioID, userID);
             if (!positions) {
                 return res.status(404).json({ message: 'Positions not found' });
             }
             return res.status(200).json(positions);
         } catch (error) {
+            console.error('Error fetching positions:', error);
             return res.status(500).json({ message: 'Error fetching positions', error });
         }
     }
@@ -91,6 +104,31 @@ class PortfolioController {
     }
 
     static async createTrade(req,res){
+
+        const portfolioID = req.params.id;
+        const userID = req.user.id;
+
+        const {quantity, tradeRate} = req.body;
+
+        // Validering af input
+        // Sikre at den authentificerede bruger ejer porteføljen
+        const result = await Portfolio.findByID(portfolioID, userID);
+        if (!result) {
+            return res.status(404).json({ message: 'Portfolio not found' });
+        }
+
+        const trade = new Portfolio({portfolioID, quantity, tradeRate});
+
+        try {
+            const result = await trade.createTrade();
+
+            res.status(201).json({tradeID: result.recordset[0].Id});
+
+        } catch (error) {
+            console.error('Error creating trade:', error);
+            res.status(500).json({ message: 'Error creating trade', error });
+
+        }
 
 
     }

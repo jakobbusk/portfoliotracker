@@ -94,10 +94,17 @@
     const portfolioPosTable = document.getElementById('portfolioPosTable');
     const portfolioTableOptions = {
         columns: [
-            { name: 'Aktie', key: 'name' },
+            { name: 'Aktie', key: 'assetName' },
             { name: 'Antal', key: 'quantity' },
-            { name: 'Kurs', key: 'assetPrice' },
-            { name: 'Værdi', key: 'value' },
+            { name: 'GAK', key: 'GAK' },
+            { name: 'Værdi', key: 'value', callback: (row) => {
+                const value = row.quantity * row.GAK;
+                return value.toLocaleString('da-DK', {
+                    style: 'currency',
+                    currency: row.assetCurrency || 'USD',
+                });
+            }
+            }
         ]
     }
     async function fetchPortfolioPositions() {
@@ -124,24 +131,27 @@
             { name: 'Antal', key: 'quantity' },
             { name: 'Kurs', key: 'tradeRate' },
             { name: 'Værdi', key: 'value', callback: (row) => {
-                return row.value.toLocaleString('da-DK', {
+                const tradeRate = row.tradeRate;
+                const quantity = row.quantity;
+                const tradingFee = row.tradingFee;
+                const value = (tradeRate * quantity) + tradingFee;
+                return value.toLocaleString('da-DK', {
                     style: 'currency',
-                    currency: row.currency,
+                    currency: row.assetCurrency || 'USD',
                 });
                 }
             },
             { name: 'Type', key: 'tradeType', callback: (row) => {
-                return row.type === 'buy' ? 'Køb' : 'Salg';
+                return row.tradeType == 'buy' ? 'Køb' : 'Salg';
                 }
             },
-            { name: 'Valuta', key: 'currency' },
-            { name: 'Dato', key: 'date' },
+            { name: 'Dato', key: 'created_at' },
         ]
     }
 
     async function fetchPortfolioHistory() {
         try {
-            const response = await api(`portfolios/${portfolioID}/trades`, 'GET');
+            const response = await api(`trades/${portfolioID}`, 'GET');
             const portfolioHistory = await response.json();
 
             createTable(portfolioHistory, portfolioHistoryTableOptions, "portfolioHistoryTable");
