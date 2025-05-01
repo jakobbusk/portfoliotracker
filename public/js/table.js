@@ -1,7 +1,7 @@
 // funktion til at lave en tabel baseret på data fra backend
 function createTable(data, options, tableID){
 
-    const { columns, link} = options;
+    const { columns, link, reverse } = options;
 
     // Opret tabel element
     const table = document.createElement('table');
@@ -53,10 +53,13 @@ function createTable(data, options, tableID){
             row.addEventListener('click', () => {
                 // Redirect til linket
 
-                window.location.href = `${link.href}/${rowData.id}`;
+                window.location.href = `${link.href}/${rowData[link.key]}`;
             })
         }
-        tbody.appendChild(row);
+        
+        if (reverse) {
+            tbody.prepend(row)
+        } else {tbody.appendChild(row)}
     })
 
     // Tilføj bodyen til tabellen

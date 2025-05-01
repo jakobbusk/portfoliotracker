@@ -37,7 +37,7 @@
     // /stocks/:symbol/historical
     // Vi skal have fat i symbol
     const url = window.location.href.split('/');
-    const symbol = url[url.length - 2];
+    const symbol = url[url.length - 1];
     const stockName = document.getElementById('stockName');
     stockName.innerText = symbol.toUpperCase() + ' - Historisk data';
 

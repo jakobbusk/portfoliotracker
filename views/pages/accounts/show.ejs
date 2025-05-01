@@ -6,6 +6,7 @@
         <header>
             <div>
                 <h1 id="accountName"></h1>
+                <h2 id="accountBalance"></h2>
                 <p><span id="accountBank"></span> - <span id="accountCurrency"></span></p>
             </div>
             <div class="flex-row">
@@ -19,7 +20,7 @@
         <div id="depositContainer" class="flex-container" style="display: none;">
             <div class="flex-item">
                 <h2>Indsæt penge</p>
-                <form id="depositForm" class="form">
+                <form id="depositForm" class="form flex-column">
                     <label for="amount">Beløb</label>
                     <input type="number" id="amount" name="amount" min="0" step="0.01" required>
                     <label for="currency">Valuta</label>
@@ -113,6 +114,7 @@
 
     // hent alle steder
     const accountName = document.getElementById('accountName');
+    const accountBalance = document.getElementById('accountBalance');
     const accountBank = document.getElementById('accountBank');
     const accountCurrency = document.getElementById('accountCurrency');
 
@@ -134,6 +136,10 @@
             accountName.innerText = account.name;
             accountBank.innerText = account.bankReference;
             accountCurrency.innerText = account.currency;
+            accountBalance.innerText = Intl.NumberFormat('da-DK', {
+                                        style: 'currency',
+                                        currency: account.currency,
+                                        }).format(account.balance);
 
             //ændr open/close account knap til open hvis account er lukket
             if (account.closed){
@@ -181,6 +187,7 @@
                                 const linkToPortfolio = document.createElement('a');
                                 linkToPortfolio.href = `/portfolios/${row.portfolioID}`;
                                 linkToPortfolio.innerText = `${row.portfolioName}`;
+                                linkToPortfolio.className = 'table-button';
                                 return linkToPortfolio;
                             }
                         }
@@ -200,7 +207,8 @@
                             });
                         }
                     },
-                ]
+                ],
+                reverse: true,
             }
 
             createTable(account.transactions, options, "transactionTable");

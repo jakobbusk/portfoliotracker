@@ -46,17 +46,11 @@
 			if (response.ok) {
 				const data = await response.json();
                 const options = {
-                columns: [
+                    link: {href: '/symbols', key: 'symbol'},
+                    columns: [
                     {
                         name: 'Navn',
                         key: 'description',
-                        callback: (value) => {
-                            console.log(value);
-                            const atagElement = document.createElement('a');
-                            atagElement.href = `/symbols/${value.symbol}/historical`;
-                            atagElement.innerText = value.description;
-                            return atagElement;
-                        }
                     },
                     {
                         name: 'Ticker',
