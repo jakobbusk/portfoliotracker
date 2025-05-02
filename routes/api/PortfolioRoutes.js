@@ -12,6 +12,9 @@ router.get('/',checkAuth, PortfolioController.getAll)
 // Opretter en portefølje
 router.post('/', checkAuth, PortfolioController.create)
 
+// Henter top 5 positioner for brugeren
+router.get('/top5', checkAuth, PortfolioController.getTop5Positions)
+
 // Henter en portefølje
 router.get('/:id',checkAuth, PortfolioController.getPortfolio)
 

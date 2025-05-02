@@ -188,6 +188,21 @@
             alert("Du har ikke dækning")
             return
         }
+
+        try {
+            const response = await api('trades', 'POST', {
+                symbol: symbol,
+                quantity: parseInt(quantityInput.value),
+                tradeRate: parseFloat(tradeRateInput.value),
+                tradingFee: parseFloat(tradingFeeInput.value),
+                portfolioID: parseInt(portfolioSelect.value),
+                exchangeRate: exchangeRate,
+                tradeType: 'buy',
+            });
+        } catch (error) {
+
+
+        }
     })
 
 

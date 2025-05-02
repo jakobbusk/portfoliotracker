@@ -133,7 +133,7 @@ class Account {
         return result;
     }
 
-    async makeTransaction(amount,exchangeRate,currency,transactionType) {
+    async makeTransaction(amount,exchangeRate,currency,transactionType,portfolioID,tradeID) {
         if(this.closed) {
             return { error: 'Konto er lukket' };
         }
@@ -151,6 +151,8 @@ class Account {
             exchangeRate: exchangeRate,
             currency: currency,
             transactionType: transactionType,
+            portfolioID: portfolioID,
+            tradeID: tradeID
         })
 
         // Nu sender vi de nødvendige data til Transaction klassen
