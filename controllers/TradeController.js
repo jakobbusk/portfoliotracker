@@ -41,13 +41,14 @@ class TradeController {
             const asset = new Asset({ symbol: assetDetails[0].symbol, name: assetDetails[0].description });
             try {
                 // Opretter asset i databasen
-                const newAsset = await asset.create();
+                const newAsset = await asset.create(tradeRate);
                 assetID = newAsset.id;
             } catch (error) {
                 return res.status(500).json({ message: 'Error creating asset', error });
             }
         } else {
             assetID = assetExists.id;
+            await assetExists.updateAssetPrice(tradeRate);
         }
 
         const trade = new Trade({

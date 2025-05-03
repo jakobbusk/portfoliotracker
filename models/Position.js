@@ -15,8 +15,9 @@ export default class Position {
         this.updated_at = data.updated_at;
 
         // Håndter ekstra data fra join
-        if ('assetName' in data) this.assetName = data.assetName;
-        if ('assetSymbol' in data) this.assetSymbol = data.assetSymbol;
+        if('assetName' in data) this.assetName = data.assetName;
+        if('assetSymbol' in data) this.assetSymbol = data.assetSymbol;
+        if('totalValue' in data) this.totalValue = data.totalValue;
 
     }
 
@@ -49,22 +50,37 @@ export default class Position {
 
     }
 
-    static async top5(userID, columns = Position.columns) {
-        // Hent de 5 største positioner på userID
-        // Quantity * GAK
+
+    // TODO
+    static async top5Value(userID, columns = Position.columns) {
+        // Hent de 5 største værdier på positioner med userID
+        // Alle porteføljer
+        // Quantity * AssetPrice
+        // Udregnes i SQL
+        // Vi får quantity fra Position tabellen
+        // Vi får assetPrice fra HistoricalAssetPrice tabellen
+        // Vi ønsker også at få totalValue med
         const query = db.request()
         try {
             const result = await query.input('userID', userID)
                 .query(`SELECT TOP 5
                     ${columns.map(col => 'p.' + col).join(', ')},
                     a.name AS assetName,
-                    a.symbol AS assetSymbol
+                    a.symbol AS assetSymbol,
+                    a.currency AS assetCurrency,
+                    (p.quantity * hap.assetPrice) AS totalValue
                     FROM ${Position.tableName} p
                     JOIN Portfolio port ON p.portfolioID = port.id
                     JOIN Asset a ON p.assetID = a.id
-                    WHERE port.userID = @userID AND p.quantity > 0
-                    ORDER BY p.quantity * p.GAK DESC
+                    JOIN HistoricalAssetPrice hap ON p.assetID = hap.assetID
+                    WHERE port.userID = @userID
+                    AND hap.date = (SELECT MAX(date) FROM HistoricalAssetPrice WHERE assetID = p.assetID)
+                    ORDER BY totalValue DESC
+
                 `)
+
+                console.log('result:', result);
+
 
             if (result.recordset.length === 0) return [];
             return result.recordset.map(row => new Position(row));
@@ -119,6 +135,13 @@ export default class Position {
 
         } else if(tradeType === 'sell') {
             this.quantity = this.quantity - tradeQuantity;
+
+            // Vi sletter positionen hvis quantity er 0
+            if(this.quantity <= 0) {
+                this.delete();
+                return;
+            }
+
         }
 
         this.updated_at = new Date();
@@ -158,6 +181,21 @@ export default class Position {
             return result.recordset;
         } catch (error) {
             console.error('Error updating position PnL:', error);
+            throw error;
+        }
+    }
+
+
+    // Logik til at slette en position
+    async delete() {
+        const query = db.request()
+        try {
+            const result = await query.input('portfolioID', this.portfolioID)
+                .input('assetID', this.assetID)
+                .query(`DELETE FROM ${Position.tableName} WHERE portfolioID = @portfolioID AND assetID = @assetID`);
+            return result.recordset;
+        } catch (error) {
+            console.error('Error deleting position:', error);
             throw error;
         }
     }
