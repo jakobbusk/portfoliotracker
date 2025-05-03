@@ -1,4 +1,4 @@
-import {createLineChart} from '/assets/js/chart.js';
+import {createLineChart, createPieChart} from '/assets/js/chart.js';
 
 
 let testDataLine = [

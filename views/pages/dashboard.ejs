@@ -6,24 +6,51 @@
 	<header>
 		<div>
 			<h1>Dashboard</h1>
-			<p>Velkommen til dit portfolio tracker dashboar!</p>
+			<p>Velkommen til dit portfolio tracker dashboard!</p>
 		</div>
 	</header>
 	<div class="flex-container">
-		<div id="totalValueChart" class="flex-item flex-item-fullwidth stats-card">
+		<div class="flex-item-fullwidth stats-card" id="totalValue">
+			<h3>Total værdi</h3>
+			<div class="flex-row">
+				<p class="negative">-1,9%</p>
+				<p class="stats-value">X kr.</p>
+			</div>
 		</div>
-		<div class="flex-item">
-			<h3>Total realiseret gevinst </h3>
 
+		<div class="flex-item-fullwidth stats-card" id="totalRealisedGains">
+			<h3>Total realiseret gevinst</h3>
+			<div class="flex-row">
+				<p class="negative">-1,9%</p>
+				<p class="stats-value">X kr.</p>
+			</div>
 		</div>
-		<div class="flex-item">
+
+		<div class="flex-item-fullwidth stats-card" id="totalUnrealisedGains">
 			<h3>Total urealiseret gevinst</h3>
-
+			<div class="flex-row">
+				<p class="negative">-1,9%</p>
+				<p class="stats-value">X kr.</p>
+			</div>
 		</div>
-		<div id="apex" class="flex-item"></div>
+
 	</div>
-	<div class="flex-container stats-card flex-item-fullwidth">
-		<p>hej</p>
+
+	<div class="flex-container">
+		<div id="totalValueChart" class="flex-item flex-item-fullwidth"></div>
+	</div>
+
+	<div class="flex-container">
+		<div class="flex-item flex-item-fullwidth">
+			<h2>Top 5 værdipapirer baseret på værdi</h2>
+			<div id="top5Value"></div>
+		</div>
+		<div class="flex-item flex-item-fullwidth">
+			<h2>Top 5 værdipapirer baseret på urealiseret gevinst</h2>
+			<div id="top5Unrealised"></div>
+		</div>
+	</div>
+
 	</div>
 
 </main>

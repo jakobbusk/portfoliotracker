@@ -34,6 +34,7 @@
 <script type="module">
     import api from '/assets/js/api.js';
     import createTable from '/assets/js/table.js';
+    import {createLineChart, createPieChart} from '/assets/js/chart.js';
 
     // Skift mellem visninger
     const portfolioDashboardLink = document.getElementById('portfolioDashboardLink');
@@ -98,7 +99,7 @@
             const response = await api(`portfolios/${portfolioID}`,'GET')
             const portfolioDetails = await response.json();
             portfolioName.innerText = portfolioDetails.name;
-            portfolioDesc.innerText = `Tilknyttede konto: ${portfolioDetails.accountName}`;
+            portfolioDesc.innerText = `Tilknyttet konto: ${portfolioDetails.accountName}`;
 
 
         } catch (error) {
@@ -132,14 +133,13 @@
 
 
             createTable(portfolioPositions, portfolioTableOptions, "portfolioPosTable");
-
+            createPieChart(portfolioPositions,'Fordeling af værdi','positionPieChart');
         } catch (error) {
             alert('Der skete en fejl under hentning af porteføljens positioner');
             console.error('Error fetching portfolio positions:', error);
         }
     }
     await fetchPortfolioPositions();
-
 
     // Logik til at hente handels historik
     const portfolioHistoryTable = document.getElementById('portfolioHistoryTable');
