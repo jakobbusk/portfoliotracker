@@ -10,9 +10,9 @@
             </div>
 
             <div class="flex-container">
-                <a id="portfolioDashboardLink" class="button">Dashboard</a>
+                <a id="portfolioDashboardLink" class="button button-active">Dashboard</a>
                 <a id="portfolioHistoryLink" class="button">Handels historik</a>
-                <a id="portfolioTradeLink" class="button">Registrer handel</a>
+                <a id="portfolioTradeLink" href="/symbols" class="button">Registrer handel</a>
             </div>
         </header>
 
@@ -34,6 +34,7 @@
 <script type="module">
     import api from '/assets/js/api.js';
     import createTable from '/assets/js/table.js';
+    import {createLineChart, createPieChart} from '/assets/js/chart.js';
 
     // Skift mellem visninger
     const portfolioDashboardLink = document.getElementById('portfolioDashboardLink');
@@ -51,6 +52,26 @@
         document.getElementById('portfolioDashboard').style.display = view === 'dashboard' ? 'block' : 'none';
         document.getElementById('portfolioHistory').style.display = view === 'history' ? 'block' : 'none';
         document.getElementById('portfolioTrade').style.display = view === 'trade' ? 'block' : 'none';
+
+        switch (view) {
+            case 'dashboard':
+                portfolioDashboardLink.classList.add('button-active')
+                portfolioHistoryLink.classList.remove('button-active')
+                portfolioTradeLink.classList.remove('button-active')
+                break;
+            case 'history':
+                portfolioDashboardLink.classList.remove('button-active')
+                portfolioHistoryLink.classList.add('button-active')
+                portfolioTradeLink.classList.remove('button-active')
+                break;
+            case 'trade':
+                portfolioDashboardLink.classList.remove('button-active')
+                portfolioHistoryLink.classList.remove('button-active')
+                portfolioTradeLink.classList.add('button-active')
+                break;
+            default:
+                break;
+        }
     }
     portfolioDashboardLink.addEventListener('click', () => {
         setView('dashboard');
@@ -78,7 +99,7 @@
             const response = await api(`portfolios/${portfolioID}`,'GET')
             const portfolioDetails = await response.json();
             portfolioName.innerText = portfolioDetails.name;
-            portfolioDesc.innerText = `Tilknyttede konto: ${portfolioDetails.accountName}`;
+            portfolioDesc.innerText = `Tilknyttet konto: ${portfolioDetails.accountName}`;
 
 
         } catch (error) {
@@ -112,14 +133,13 @@
 
 
             createTable(portfolioPositions, portfolioTableOptions, "portfolioPosTable");
-
+            createPieChart(portfolioPositions,'Fordeling af værdi','positionPieChart');
         } catch (error) {
             alert('Der skete en fejl under hentning af porteføljens positioner');
             console.error('Error fetching portfolio positions:', error);
         }
     }
     await fetchPortfolioPositions();
-
 
     // Logik til at hente handels historik
     const portfolioHistoryTable = document.getElementById('portfolioHistoryTable');

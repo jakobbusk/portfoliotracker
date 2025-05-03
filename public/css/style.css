@@ -24,6 +24,14 @@ p, label {
     color: #84837E;
     font-size: 10pt;
 }
+.positive {
+    color: #46634C;
+    font-weight: bold;
+}
+.negative {
+    color: #BD3A3A;
+    font-weight: bold;
+}
 
 .container {
     display: flex;
@@ -107,14 +115,21 @@ header {
 .flex-container .flex-item {
     flex-shrink: 1;
     background-color: #1E1E1E;
-    padding: 18px 18px;
+    padding: 15px 15px;
     border-radius: 6px;
+}
+.flex-container .flex-item-shrink2 {
+    flex-shrink: 2;
+}
+.flex-item h2 {
+    margin-top: 0;
+    color: #C3C3C1;
 }
 
 .flex-container .flex-autowith {
     width: auto;
     background-color: #1E1E1E;
-    padding: 15px 25px;
+    padding: 15px 15px;
     border-radius: 6px;
 }
 
@@ -122,7 +137,7 @@ header {
     width: 100%;
     box-sizing: border-box;
     background-color: #1E1E1E;
-    padding: 15px 25px;
+    padding: 15px 15px;
     border-radius: 6px;
 }
 .flex-row {
@@ -137,30 +152,36 @@ header {
 }
 
 /*stats cards*/
-.stats-card {
+/*.stats-card { ------------Burde måske bare fjernes da vi bare bruger flex-item
     /* card to hold
         title - top left
         value - bottom right
         description - bottom left
         icon - top right
-    */
+    *//*
     background-color: #1E1E1E;
     padding: 20px;
     border-radius: 6px;
 
-}
+}*/
 .stats-card h3 {
-    font-size: 20px;
-    margin-bottom: 10px;
+    font-size: 7pt;
+    color: #84837E;
+    margin-top: 0;
+    margin-bottom: 20px;
 }
 .stats-card p {
-    font-size: 16px;
+    font-size: 10pt;
     margin: 0;
 }
-.stats-card p .stats-value {
-    font-size: 24px;
+.stats-card .stats-value {
+    font-size: 13pt;
     font-weight: bold;
-    color: #52796F;
+    color: #C3C3C1;
+}
+.stats-card .flex-row {
+    justify-content: space-between;
+    align-items: flex-end;
 }
 
 /*tables*/
@@ -180,12 +201,6 @@ th {
 td {
     border-top: 2px solid #242424;
     padding: 10px 0px 10px 0px;
-}
-.positive {
-    color: #46634C;
-}
-.negative {
-    color: #ae2d2d;
 }
 
 /*knapper og input*/
@@ -252,3 +267,16 @@ input:focus, select:focus {
 input::placeholder {
     color: #8B8B89;
 }
+
+/*apexcharts*/
+.apexcharts-tooltip {
+    background-color: #1E1E1E !important; /*important for at overrule apexcharts indbyggede styling*/
+    color: #84837E !important;
+    border-color: #242424 !important;
+    box-shadow: none !important;
+  }
+  .apexcharts-tooltip-title {
+    background-color: #1B1B19 !important; /*important for at overrule apexcharts indbyggede styling*/
+    color: #C3C3C1 !important;
+    border-color: #242424 !important;
+  }
