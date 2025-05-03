@@ -31,7 +31,7 @@ export default class Asset {
         }
     }
 
-    async create() {
+    async create(currentAssetPrice) {
         let result;
         try {
 
@@ -43,10 +43,30 @@ export default class Asset {
                 // Insert i databasen og returnere den nye asset OUTPUT
                 .query(`INSERT INTO ${Asset.table} (name, symbol, currency, assetType) OUTPUT INSERTED.id, INSERTED.name, INSERTED.symbol VALUES (@name, @symbol, @currency, @assetType)`);
 
-                return result.recordset[0];
+            const asset = new Asset(result.recordset[0]);
+                // Når vi oprettet en ny asset - så ønsker vi også
+                // at oprette nuværende pris i HistoricalAssetPrice tabellen
+            await asset.updateAssetPrice(currentAssetPrice);
+
+            return asset;
 
         } catch (error) {
             console.error('Error creating asset:', error);
+            throw error;
+        }
+    }
+
+    async updateAssetPrice(currentAssetPrice) {
+        // Opdaterer den nuværende pris i HistoricalAssetPrice tabellen
+        const query = db.request()
+        try {
+            const result = await query.input('assetID', this.id)
+                .input('currentAssetPrice', currentAssetPrice)
+                .query(`INSERT INTO HistoricalAssetPrice (assetID, assetPrice) VALUES (@assetID, @currentAssetPrice)`)
+
+            return result.recordset[0];
+        } catch (error) {
+            console.error('Error updating asset price:', error);
             throw error;
         }
     }

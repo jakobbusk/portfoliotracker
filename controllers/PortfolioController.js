@@ -17,11 +17,11 @@ class PortfolioController {
 
     }
 
-    static async getTop5Positions(req, res) {
+    static async getTop5Value(req, res) {
         const userID = req.user.id;
 
         try {
-            const positions = await Position.top5(userID);
+            const positions = await Position.top5Value(userID);
             return res.status(200).json(positions);
         } catch (error) {
             return res.status(500).json({ message: 'Error fetching top 5 positions', error });
