@@ -25,7 +25,7 @@
             <%- include('./history') %>
         </div>
         <div id="portfolioTrade" style="display: none;">
-            <%- include('./trade') %>
+            <%- include('./sell') %>
         </div>
 
     </main>
@@ -116,9 +116,8 @@
             { name: 'Aktie', key: 'assetName' },
             { name: 'Antal', key: 'quantity' },
             { name: 'GAK', key: 'GAK' },
-            { name: 'Værdi', key: 'value', callback: (row) => {
-                const value = row.quantity * row.GAK;
-                return value.toLocaleString('da-DK', {
+            { name: 'Værdi', key: 'totalValue', callback: (row) => {
+                return row.totalValue.toLocaleString('da-DK', {
                     style: 'currency',
                     currency: row.assetCurrency || 'USD',
                 });

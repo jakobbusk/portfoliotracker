@@ -45,6 +45,24 @@ class PortfolioController {
 
     }
 
+    static async getPortfolioHistoricalValue(req, res) {
+        const portfolioID = req.params.id;
+        const userID = req.user.id;
+
+        try {
+            const historicalValue = await Portfolio.getHistoricalValue(portfolioID, userID);
+            if (!historicalValue) {
+                return res.status(404).json({ message: 'Portfolio not found' });
+            }
+            return res.status(200).json(historicalValue);
+        } catch (error) {
+            console.log('Error fetching portfolio historical value:', error);
+
+            return res.status(500).json({ message: 'Error fetching portfolio historical value', error });
+        }
+
+    }
+
     static async getPositions(req, res) {
         const portfolioID = req.params.id;
         const userID = req.user.id;
@@ -58,6 +76,23 @@ class PortfolioController {
         } catch (error) {
             console.error('Error fetching positions:', error);
             return res.status(500).json({ message: 'Error fetching positions', error });
+        }
+    }
+
+    static async getPosition(req, res) {
+        const portfolioID = req.params.id;
+        const userID = req.user.id;
+        const positionID = req.params.positionID;
+
+        try {
+            const position = await Position.findByID(positionID, portfolioID, userID);
+            if (!position) {
+                return res.status(404).json({ message: 'Position not found' });
+            }
+            return res.status(200).json(position);
+        } catch (error) {
+            console.error('Error fetching position:', error);
+            return res.status(500).json({ message: 'Error fetching position', error });
         }
     }
 

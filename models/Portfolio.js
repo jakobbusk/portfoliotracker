@@ -4,7 +4,7 @@ class Portfolio {
 
     static tableName = 'Portfolio';
 
-    static columns = ['id', 'name', 'accountID','userID', 'totalAcquisitionValue', 'totalMarketValue', 'totalUnrealisedPnL', 'created_at', 'updated_at'];
+    static columns = ['id', 'name', 'accountID','userID', 'totalAcquisitionValue', 'totalMarketValue', 'totalUnrealisedPnL','totalRealisedPnL', 'created_at', 'updated_at'];
 
     constructor(data = {}){
         this.id = data.id;
@@ -14,6 +14,7 @@ class Portfolio {
         this.totalAcquisitionValue = data.totalAcquisitionValue || 0;
         this.totalMarketValue = data.totalMarketValue || 0;
         this.totalUnrealisedPnL = data.totalUnrealisedPnL || 0;
+        this.totalRealisedPnL = data.totalRealisedPnL || 0;
         this.created_at = data.created_at;
         this.updated_at = data.updated_at;
 
@@ -52,9 +53,7 @@ class Portfolio {
                 .query(`
                     SELECT TOP 1
                     ${columns.map(col => 'p.' + col).join(', ')},
-                    a.name AS accountName,
-                    a.currency AS accountCurrency,
-                    a.balance AS accountBalance
+                    a.name AS accountName
                     FROM ${this.tableName} p
                     JOIN Account a ON p.accountID = a.id
                     WHERE p.id = @id AND a.userID = @userID`)
@@ -78,6 +77,59 @@ class Portfolio {
                 VALUES (@name, @accountID, @userID)`);
 
         return result;
+    }
+    async update() {
+        const query = db.request()
+        try {
+            const result = await query
+                .input('id', this.id)
+
+                .query(`UPDATE ${Portfolio.tableName} SET name = @name WHERE id = @id`);
+            return result;
+
+        } catch (error) {
+            console.error('Error updating portfolio:', error);
+            throw error;
+        }
+    }
+
+    static async getHistoricalValue(portfolioID, userID) {
+        const query = db.request()
+        try {
+            const result = await query
+            .input('portfolioID', portfolioID).input('userID', userID)
+                .query(`
+                    SELECT
+                    pv.*
+                    FROM PortfolioValueHistory pv
+                    JOIN Portfolio p ON pv.portfolioID = p.id
+                    WHERE p.id = @portfolioID AND p.userID = @userID
+                    ORDER BY pv.created_at DESC
+                    `)
+
+            if (result.recordset.length === 0) return [];
+            return result.recordset
+
+        } catch (error) {
+            console.error('Error fetching portfolio value history:', error);
+            throw error;
+        }
+    }
+
+    async updatePortfolioValueHistory(totalValue){
+        // Opdater historisk værdi for porteføljen
+        const query = db.request()
+        try {
+            const result = await query
+                .input('portfolioID', this.id)
+                .input('totalValue', totalValue)
+                .query(`INSERT INTO PortfolioValueHistory (portfolioID, totalValue) VALUES (@portfolioID, @totalValue)`);
+            return result;
+
+        } catch (error) {
+            console.error('Error updating portfolio value history:', error);
+            throw error;
+        }
     }
 
     async buy() {

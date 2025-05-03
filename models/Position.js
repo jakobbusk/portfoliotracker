@@ -2,15 +2,17 @@ import db from '../database/db.js';
 export default class Position {
 
     static tableName = 'Position';
-    static columns = ['id', 'portfolioID', 'assetID', 'quantity', 'unrealisedPnL', 'GAK', 'created_at', 'updated_at'];
+    static columns = ['id', 'portfolioID', 'assetID', 'quantity', 'GAK','realisedPnL', 'unrealisedPnL','marketValue', 'created_at', 'updated_at'];
 
     constructor(data = {}) {
         this.id = data.id;
         this.portfolioID = data.portfolioID;
         this.assetID = data.assetID;
         this.quantity = data.quantity || 0;
-        this.unrealisedPnL = data.unrealisedPnL || 0;
         this.GAK = data.GAK || 0;
+        this.unrealisedPnL = data.unrealisedPnL || 0;
+        this.realisedPnL = data.realisedPnL || 0;
+        // this.marketValue = data.marketValue || 0;
         this.created_at = data.created_at;
         this.updated_at = data.updated_at;
 
@@ -18,12 +20,9 @@ export default class Position {
         if('assetName' in data) this.assetName = data.assetName;
         if('assetSymbol' in data) this.assetSymbol = data.assetSymbol;
         if('totalValue' in data) this.totalValue = data.totalValue;
+        if('portfolioName' in data) this.portfolioName = data.portfolioName;
 
     }
-
-
-    static async all(userID, columns = Position.columns) {}
-
 
     static async allByPortfolioID(portfolioID,userID, columns = Position.columns) {
         const query = db.request()
@@ -33,11 +32,20 @@ export default class Position {
                 .query(`SELECT
                     ${columns.map(col => 'p.' + col).join(', ')},
                     a.name AS assetName,
-                    a.symbol AS assetSymbol
+                    a.symbol AS assetSymbol,
+                    hap.assetPrice as currentPrice,
+                    (p.quantity * hap.assetPrice) AS totalValue
                     FROM ${Position.tableName} p
                     JOIN Portfolio port ON p.portfolioID = port.id
                     JOIN Asset a ON p.assetID = a.id
+                    JOIN HistoricalAssetPrice hap ON p.assetID = hap.assetID
                     WHERE port.userID = @userID AND port.id = @portfolioID AND p.quantity > 0
+                    AND hap.created_at = (
+                        SELECT TOP 1 created_at
+                        FROM HistoricalAssetPrice
+                        WHERE assetID = p.assetID
+                        ORDER BY created_at DESC)
+                    ORDER BY totalValue DESC
 
                 `)
 
@@ -50,6 +58,29 @@ export default class Position {
 
     }
 
+    static async findByID(id, userID, columns = Position.columns) {
+        const query = db.request()
+        try {
+            const result = await query.input('id', id)
+                .input('userID', userID)
+                .query(`
+                    SELECT TOP 1
+                    ${columns.map(col => 'p.' + col).join(', ')},
+                    a.name AS assetName,
+                    a.symbol AS assetSymbol
+                    FROM ${Position.tableName} p
+                    JOIN Portfolio port ON p.portfolioID = port.id
+                    JOIN Asset a ON p.assetID = a.id
+                    WHERE p.id = @id AND port.userID = @userID`)
+
+            if (result.recordset.length === 0) return null;
+            return new Position(result.recordset[0]);
+        } catch (error) {
+            console.error('Error fetching position:', error);
+            throw error;
+        }
+    }
+
 
     // TODO
     static async top5Value(userID, columns = Position.columns) {
@@ -59,7 +90,7 @@ export default class Position {
         // Udregnes i SQL
         // Vi får quantity fra Position tabellen
         // Vi får assetPrice fra HistoricalAssetPrice tabellen
-        // Vi ønsker også at få totalValue med
+        // Vi ønsker også at få marketValue med
         const query = db.request()
         try {
             const result = await query.input('userID', userID)
@@ -68,14 +99,20 @@ export default class Position {
                     a.name AS assetName,
                     a.symbol AS assetSymbol,
                     a.currency AS assetCurrency,
+                    port.name AS portfolioName,
                     (p.quantity * hap.assetPrice) AS totalValue
                     FROM ${Position.tableName} p
                     JOIN Portfolio port ON p.portfolioID = port.id
                     JOIN Asset a ON p.assetID = a.id
                     JOIN HistoricalAssetPrice hap ON p.assetID = hap.assetID
                     WHERE port.userID = @userID
-                    AND hap.date = (SELECT MAX(date) FROM HistoricalAssetPrice WHERE assetID = p.assetID)
+                    AND hap.created_at = (
+                        SELECT TOP 1 created_at
+                        FROM HistoricalAssetPrice
+                        WHERE assetID = p.assetID
+                        ORDER BY created_at DESC)
                     ORDER BY totalValue DESC
+
 
                 `)
 

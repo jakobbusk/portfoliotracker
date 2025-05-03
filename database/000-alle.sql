@@ -29,8 +29,8 @@ CREATE TABLE Portfolio
    name                  NVARCHAR(255) NOT NULL,
    accountID             INT NOT NULL,
    userID               INT NOT NULL,
-   totalAcquisitionValue DECIMAL(18, 2) NOT NULL DEFAULT 0,
    totalMarketValue      DECIMAL(18, 2) NOT NULL DEFAULT 0,
+   totalRealisedPnL      DECIMAL(18, 2) NOT NULL DEFAULT 0,
    totalUnrealisedPnL    DECIMAL(18, 2) NOT NULL DEFAULT 0,
    created_at            DATETIME DEFAULT Getdate() NOT NULL,
    updated_at            DATETIME DEFAULT Getdate() NOT NULL,
@@ -45,8 +45,6 @@ CREATE TABLE Asset
    symbol     NVARCHAR(255) NOT NULL,
    assetType  NVARCHAR(255) NOT NULL,
    currency   NVARCHAR(255) NOT NULL,
-   exchange   NVARCHAR(255) NOT NULL,
-   figi       NVARCHAR(255) NOT NULL,
    created_at DATETIME DEFAULT Getdate() NOT NULL,
    updated_at DATETIME DEFAULT Getdate() NOT NULL,
 );
@@ -55,7 +53,6 @@ CREATE TABLE Historicalassetprice
 (
    id         INT IDENTITY PRIMARY KEY,
    assetID    INT NOT NULL,
-   date       DATETIME NOT NULL,
    assetPrice DECIMAL(18, 2) NOT NULL,
    created_at DATETIME DEFAULT Getdate() NOT NULL,
    CONSTRAINT fk_assetid FOREIGN KEY (assetID) REFERENCES Asset(id),
@@ -67,8 +64,10 @@ CREATE TABLE Position
    portfolioID   INT NOT NULL,
    assetID       INT NOT NULL,
    quantity      INT NOT NULL,
-   unrealisedPnL DECIMAL(18, 2) NOT NULL,
    GAK           DECIMAL(18, 2) NOT NULL,
+   unrealisedPnL DECIMAL(18, 2) NOT NULL,
+   realisedPnL   DECIMAL(18, 2) NOT NULL,
+   marketValue   DECIMAL(18, 2) NOT NULL,
    created_at    DATETIME DEFAULT Getdate() NOT NULL,
    updated_at    DATETIME DEFAULT Getdate() NOT NULL,
    CONSTRAINT fk_position_portfolioid FOREIGN KEY (portfolioID) REFERENCES Portfolio(id),
@@ -104,4 +103,13 @@ CREATE TABLE [Transaction]
    CONSTRAINT fk_transaction_portfolioid FOREIGN KEY (portfolioID) REFERENCES Portfolio(id),
    CONSTRAINT fk_transaction_tradeid FOREIGN KEY (tradeID) REFERENCES Trade(id),
    CONSTRAINT fk_transaction_accountid FOREIGN KEY (accountID) REFERENCES Account(id),
+);
+
+CREATE TABLE PortfolioValueHistory
+(
+   id                   INT IDENTITY PRIMARY KEY,
+   portfolioID          INT NOT NULL,
+   totalPortfolioValue  DECIMAL(18, 2) NOT NULL,
+   created_at           DATETIME DEFAULT Getdate() NOT NULL,
+   CONSTRAINT fk_portfoliovaluehistory_portfolioid FOREIGN KEY (portfolioID) REFERENCES Portfolio(id),
 );

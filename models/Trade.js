@@ -123,8 +123,16 @@ export default class Trade {
                 throw new Error('Transaction failed');
             }
 
+            if(this.tradeType === 'sell') {
+                // Hvis vi sælger en aktie - så skal vi regne realiseret PnL ud
+                const realisedPnL = (this.tradeRate - position.GAK) * this.quantity;
+                portfolio.realisedPnL += realisedPnL;
+            }
+
+
             // Opdater positionen
-            await position.update(this.tradeType, this.quantity, tradeValue);
+            // await position.update(this.tradeType, this.quantity, tradeValue);
+            // await portfolio.update();
 
             return true;
         } catch (error) {

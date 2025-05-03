@@ -20,8 +20,14 @@ router.get('/top5/value', checkAuth, PortfolioController.getTop5Value)
 // Henter en portefølje
 router.get('/:id',checkAuth, PortfolioController.getPortfolio)
 
+// Henter historisk værdi for en portefølje
+router.get('/:id/historical',checkAuth, PortfolioController.getPortfolioHistoricalValue)
+
 // Henter positioner for en portefølje
 router.get('/:id/positions',checkAuth, PortfolioController.getPositions)
+
+// Hent en position baseret på portfolioID og assetID
+router.get('/:id/positions/:positionID',checkAuth, PortfolioController.getPosition)
 
 // Håndter portefølje trades
 router.get('/:id/trades',checkAuth, PortfolioController.getTrades)

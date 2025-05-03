@@ -60,7 +60,7 @@ export default class Asset {
         // Opdaterer den nuværende pris i HistoricalAssetPrice tabellen
         const query = db.request()
         try {
-            const result = await query.input('assetID', this.id)
+            await query.input('assetID', this.id)
                 .input('currentAssetPrice', currentAssetPrice)
                 .query(`INSERT INTO HistoricalAssetPrice (assetID, assetPrice) VALUES (@assetID, @currentAssetPrice)`)
 

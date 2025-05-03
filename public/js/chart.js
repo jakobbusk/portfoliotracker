@@ -12,7 +12,7 @@ function apexSettings() {
             enabled: false,
         },
     }
-    
+
     Apex.tooltip = { //box der popper op når man hover mus over graf
         enabled: true,
         style: { //er også stylet i style.css
@@ -34,9 +34,9 @@ function apexSettings() {
 
 //funktion til at generere linjegraf
 async function createLineChart(data, optionsObject, chartID){
-    
+
     const {title, seriesName, currency} = optionsObject;
-    
+
     await apexSettings() //kør standardinstillinger
 
     let options = {
@@ -115,19 +115,18 @@ async function createLineChart(data, optionsObject, chartID){
 }
 
 async function createPieChart(data,title,chartID) {
-    
+
     //piechart bruger to arrays, en med værdier og en med tilhørende label
     const dataSeries = [];
     const dataLabels = [];
 
     data.forEach(e => { //looper gennem alle positioner og tilføjer dem til arrays
-        const positionValue = (e.GAK*e.quantity)+e.unrealisedPnL
-        dataSeries.push(positionValue)
+        dataSeries.push(e.totalValue)
         dataLabels.push(e.assetSymbol)
     });
-    
+
     await apexSettings() //kør standardinstillinger
-    
+
     const options = {
         chart: {
             type: 'pie', //angiv piechart
@@ -162,7 +161,7 @@ async function createPieChart(data,title,chartID) {
             },
         },
     }
-    
+
     let chart = new ApexCharts(document.getElementById(chartID),options); //opret chart
     chart.render(); //vis chartet
     return chart
