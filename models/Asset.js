@@ -64,7 +64,8 @@ export default class Asset {
                 .input('currentAssetPrice', currentAssetPrice)
                 .query(`INSERT INTO HistoricalAssetPrice (assetID, assetPrice) VALUES (@assetID, @currentAssetPrice)`)
 
-            return result.recordset[0];
+
+            return;
         } catch (error) {
             console.error('Error updating asset price:', error);
             throw error;
