@@ -9,19 +9,23 @@ router.get('/', (req, res) => {
 });
 
 router.get('/dashboard', (req, res) => {
-  res.render('dashboard', { title: 'Home' })
+  res.render('dashboard', { title: 'Hjem' })
 });
 
 router.get('/symbols', (req, res) => {
-  res.render('symbols/search', { title: 'Symbols' })
+  res.render('symbols/search', { title: 'Symboler' })
 })
 
 router.get('/symbols/:symbol', (req, res) => {
-  res.render('symbols/symbol', { title: 'Stock', symbol: req.params.symbol })
+  res.render('symbols/symbol', { title: `${req.params.symbol}`, symbol: req.params.symbol })
 })
 
 router.get('/symbols/:symbol/trade', (req, res) => {
   res.render('symbols/trade', { title: 'Køb', symbol: req.params.symbol })
+})
+
+router.get('/symbols/:symbol/sell', (req, res) => {
+  res.render('symbols/sell', { title: 'Sælg', symbol: req.params.symbol })
 })
 
 router.use('/accounts', accountRoutes)

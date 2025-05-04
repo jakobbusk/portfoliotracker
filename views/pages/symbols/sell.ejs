@@ -23,7 +23,7 @@
                     <option value="" disabled selected>Vælg portefølje</option>
                 </select>
                 <p>
-                    Total pris for handel i akties valuta:
+                    Total handelssum i akties valuta:
                     <span id="totalPrice"></span>
                 </p>
                 <p>
@@ -49,12 +49,12 @@
 
 
     // Vi ved at den URL'en ser sådan her ud:
-    // /symbols/:symbol/trade
+    // /symbols/:symbol/sell
     // Vi skal have fat i symbol
     const url = window.location.href.split('/');
     const symbol = url[url.length - 2].toUpperCase();
     const stockName = document.getElementById('stockName');
-    stockName.innerText = `Køb ${symbol}`;
+    stockName.innerText = `Sælg ${symbol}`;
 
     // Til kurs ændring
     let portfolioCurrency = 'USD';
@@ -160,7 +160,7 @@
         const tradingFee = parseFloat(tradingFeeInput.value) || 0;
 
         // Beregn total pris for aktien samt tradingFee
-        const totalPrice = (quantity * tradeRate) + tradingFee;
+        const totalPrice = (quantity * tradeRate) - tradingFee;
         const intlTotalPrice = Intl.NumberFormat('da-DK', {
             style: 'currency',
             currency: 'USD' }
@@ -169,7 +169,7 @@
 
         // Udregn saldo på konto efter i kontos valuta
         // Hvis en portefølje er valgt
-        accountBalanceAfter = accountBalance - (totalPrice * exchangeRate)
+        accountBalanceAfter = accountBalance + (totalPrice * exchangeRate)
         const intlAccountTotalPrice = Intl.NumberFormat('da-DK', {
             style: 'currency',
             currency: portfolioCurrency }
@@ -200,7 +200,7 @@
                 tradingFee: parseFloat(tradingFeeInput.value),
                 portfolioID: parseInt(portfolioSelect.value),
                 exchangeRate: exchangeRate,
-                tradeType: 'buy',
+                tradeType: 'sell',
             });
             alert('Handel gennemført')
         } catch (error) {

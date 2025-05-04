@@ -238,6 +238,10 @@ button:hover, .button:hover, tr:not(:has(th)):hover, input:hover, select:hover, 
     transition: background-color 0.3s; /*så ny baggrund fader ind*/
     cursor: pointer;
 }
+button:disabled:hover { /*fjern hover funktionalitet når button er disbabled*/
+    background-color: #242424;
+    cursor: default; 
+}
 tr, input, button, .button, select{
     transition: background-color 0.3s; /*transition når man fjerner musen*/
 }
