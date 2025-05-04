@@ -1,20 +1,17 @@
 import db from '../database/db.js';
+import Position from './Position.js';
 
 class Portfolio {
 
     static tableName = 'Portfolio';
 
-    static columns = ['id', 'name', 'accountID','userID', 'totalAcquisitionValue', 'totalMarketValue', 'totalUnrealisedPnL','totalRealisedPnL', 'created_at', 'updated_at'];
+    static columns = ['id', 'name', 'accountID','userID', 'totalMarketValue', 'totalUnrealisedPnL','totalRealisedPnL', 'created_at', 'updated_at'];
 
     constructor(data = {}){
         this.id = data.id;
         this.name = data.name;
         this.accountID = data.accountID;
         this.userID = data.userID;
-        this.totalAcquisitionValue = data.totalAcquisitionValue || 0;
-        this.totalMarketValue = data.totalMarketValue || 0;
-        this.totalUnrealisedPnL = data.totalUnrealisedPnL || 0;
-        this.totalRealisedPnL = data.totalRealisedPnL || 0;
         this.created_at = data.created_at;
         this.updated_at = data.updated_at;
 
@@ -22,6 +19,8 @@ class Portfolio {
         if('accountName' in data) this.accountName = data.accountName;
         if('accountCurrency' in data) this.accountCurrency = data.accountCurrency;
         if('accountBalance' in data) this.accountBalance = data.accountBalance;
+        if('realisedPnL' in data) this.realisedPnL = data.realisedPnL;
+        if('totalAcquisitionValue' in data) this.totalAcquisitionValue = data.totalAcquisitionValue;
 
     }
 
@@ -36,7 +35,11 @@ class Portfolio {
                 ${columns.map(col => 'p.' + col).join(', ')},
                 a.name AS accountName,
                 a.currency AS accountCurrency,
-                a.balance AS accountBalance
+                a.balance AS accountBalance,
+                (SELECT SUM(pos.GAK * pos.quantity)
+                    FROM Position pos
+                    WHERE pos.portfolioID = p.id
+                ) AS totalAcquisitionValue
                 FROM ${this.tableName} p
                 JOIN Account a ON p.accountID = a.id
                 WHERE a.userID = @userID
@@ -50,10 +53,16 @@ class Portfolio {
         const query = db.request()
         try {
             const result = await query.input('id', id).input('userID', userID)
+            // I denne skal vi joine alle trades på porteføljen
+            // hvor de er lig med sell og summe realisedPnL
                 .query(`
                     SELECT TOP 1
                     ${columns.map(col => 'p.' + col).join(', ')},
-                    a.name AS accountName
+                    a.name AS accountName,
+                    (   SELECT SUM(t.realisedPnL)
+                        FROM Trade t
+                        WHERE t.portfolioID = p.id AND t.tradeType = 'sell'
+                    ) AS realisedPnL
                     FROM ${this.tableName} p
                     JOIN Account a ON p.accountID = a.id
                     WHERE p.id = @id AND a.userID = @userID`)
@@ -78,6 +87,7 @@ class Portfolio {
 
         return result;
     }
+
     async update() {
         const query = db.request()
         try {
@@ -116,14 +126,28 @@ class Portfolio {
         }
     }
 
-    async updatePortfolioValueHistory(totalValue){
+    async updatePortfolioValueHistory(){
+        // Først henter vi alle positioner i porteføljen
+        const positions = await Position.allByPortfolioID(this.id, this.userID);
+
+        let totalPortfolioValue = 0;
+        let totalUnrealisedPnL = 0;
+
+        positions.forEach(position => {
+            totalPortfolioValue += position.totalValue;
+            totalUnrealisedPnL += position.totalValue - (position.GAK * position.quantity);
+        })
+
+
         // Opdater historisk værdi for porteføljen
         const query = db.request()
         try {
             const result = await query
                 .input('portfolioID', this.id)
-                .input('totalValue', totalValue)
-                .query(`INSERT INTO PortfolioValueHistory (portfolioID, totalValue) VALUES (@portfolioID, @totalValue)`);
+                .input('totalPortfolioValue', totalPortfolioValue)
+                .input('totalUnrealisedPnL', totalUnrealisedPnL)
+                .query(`INSERT INTO PortfolioValueHistory (portfolioID, totalPortfolioValue, totalUnrealisedPnL)
+                    VALUES (@portfolioID, @totalPortfolioValue, @totalUnrealisedPnL)`);
             return result;
 
         } catch (error) {

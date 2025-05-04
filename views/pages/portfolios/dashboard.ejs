@@ -1,29 +1,32 @@
 <div class="flex-column">
   <div class="flex-container">
-    <div class="flex-item-fullwidth stats-card" id="totalValue">
+    <div class="flex-item-fullwidth stats-card">
       <h3>Total værdi</h3>
       <div class="flex-row">
-        <p class="negative">-1,9%</p>
-        <p class="stats-value">X kr.</p>
+        <p class="stats-value" id="totalMarketValue">henter...</p>
       </div>
     </div>
-  
-    <div class="flex-item-fullwidth stats-card" id="totalRealisedGains">
+
+    <div class="flex-item-fullwidth stats-card" >
       <h3>Total realiseret gevinst</h3>
       <div class="flex-row">
-        <p class="negative">-1,9%</p>
-        <p class="stats-value">X kr.</p>
+        <p class="stats-value" id="totalRealisedPnL">henter...</p>
       </div>
     </div>
-  
-    <div class="flex-item-fullwidth stats-card" id="totalUnrealisedGains">
+
+    <div class="flex-item-fullwidth stats-card">
       <h3>Total urealiseret gevinst</h3>
       <div class="flex-row">
-        <p class="negative">-1,9%</p>
-        <p class="stats-value">X kr.</p>
+        <p class="stats-value" id="totalUnrealisedPnL">henter...</p>
       </div>
     </div>
-  
+    <div class="flex-item-fullwidth stats-card">
+      <h3>Total erhvervelsesværdi</h3>
+      <div class="flex-row">
+        <p class="stats-value" id="totalAcquisitionValue">henter...</p>
+      </div>
+    </div>
+
   </div>
   <div class="flex-container">
     <div id="totalValueChart" class="flex-item flex-item-fullwidth"></div>
@@ -37,6 +40,3 @@
     </div>
   </div>
 </div>
-
-<!--Midlertidigt: importerer script for at vise mock data line chart-->
-<script type="module" src="/assets/js/pages/dashboard.js"></script>

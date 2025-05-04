@@ -94,12 +94,17 @@
     // Funktion til at hente porteføljeoplysninger
     const portfolioName = document.getElementById('portfolioName');
     const portfolioDesc = document.getElementById('portfolioDesc');
+    const totalRealisedPnLText = document.getElementById('totalRealisedPnL');
     async function fetchPortfolio(){
         try {
             const response = await api(`portfolios/${portfolioID}`,'GET')
             const portfolioDetails = await response.json();
             portfolioName.innerText = portfolioDetails.name;
             portfolioDesc.innerText = `Tilknyttet konto: ${portfolioDetails.accountName}`;
+            totalRealisedPnLText.innerText = portfolioDetails.realisedPnL.toLocaleString('da-DK', {
+                style: 'currency',
+                currency: 'USD',
+            });
 
 
         } catch (error) {
@@ -122,17 +127,52 @@
                     currency: row.assetCurrency || 'USD',
                 });
             }
+            },
+            {
+                name: 'Urealiseret gevinst',
+                key: 'unrealisedPnL',
+                callback: (row) => {
+                    return (row.totalValue - (row.GAK * row.quantity)).toLocaleString('da-DK', {
+                        style: 'currency',
+                        currency: row.assetCurrency || 'USD',
+                    });
+                }
             }
         ]
     }
+    const totalMarketValueText = document.getElementById('totalMarketValue');
+    const totalUnrealisedPnLText = document.getElementById('totalUnrealisedPnL');
+    const totalAcquisitionValueText = document.getElementById('totalAcquisitionValue');
     async function fetchPortfolioPositions() {
         try {
             const response = await api(`portfolios/${portfolioID}/positions`, 'GET');
             const portfolioPositions = await response.json();
 
+            let totalMarketValue = 0;
+            let totalUnrealisedPnL = 0
+            let totalAcquisitionValue = 0;
+            portfolioPositions.forEach(row => {
+                totalMarketValue += row.totalValue;
+                totalUnrealisedPnL += row.totalValue - (row.GAK * row.quantity);
+                totalAcquisitionValue += row.GAK * row.quantity;
+            });
+            totalMarketValueText.innerText = totalMarketValue.toLocaleString('da-DK', {
+                style: 'currency',
+                currency: 'USD',
+            });
+            totalUnrealisedPnLText.innerText = totalUnrealisedPnL.toLocaleString('da-DK', {
+                style: 'currency',
+                currency: 'USD',
+            });
+            totalAcquisitionValueText.innerText = totalAcquisitionValue.toLocaleString('da-DK', {
+                style: 'currency',
+                currency: 'USD',
+            });
+
 
             createTable(portfolioPositions, portfolioTableOptions, "portfolioPosTable");
             createPieChart(portfolioPositions,'Fordeling af værdi','positionPieChart');
+
         } catch (error) {
             alert('Der skete en fejl under hentning af porteføljens positioner');
             console.error('Error fetching portfolio positions:', error);
@@ -147,6 +187,16 @@
             { name: 'Aktie', key: 'assetName' },
             { name: 'Antal', key: 'quantity' },
             { name: 'Kurs', key: 'tradeRate' },
+            {
+                name: 'Gebyr',
+                key: 'tradingFee',
+                callback: (row) => {
+                    return row.tradingFee.toLocaleString('da-DK', {
+                        style: 'currency',
+                        currency: row.assetCurrency || 'USD',
+                    });
+                }
+            },
             { name: 'Værdi', key: 'value', callback: (row) => {
                 const tradeRate = row.tradeRate;
                 const quantity = row.quantity;
@@ -157,6 +207,20 @@
                     currency: row.assetCurrency || 'USD',
                 });
                 }
+            },
+            {
+                name: 'Realiseret gevinst',
+                key: 'realisedPnL',
+                callback: (row) => {
+                    if(row.realisedPnL == null) {
+                        return 'Ikke realiseret';
+                    }
+                    return row.realisedPnL.toLocaleString('da-DK', {
+                        style: 'currency',
+                        currency: row.assetCurrency || 'USD',
+                    });
+                }
+
             },
             { name: 'Type', key: 'tradeType', callback: (row) => {
                 return row.tradeType == 'buy' ? 'Køb' : 'Salg';
@@ -178,4 +242,41 @@
             console.error('Error fetching portfolio history:', error);
         }
     }
+
+
+    // funktion til portfolio value history
+    function createValueChart(historyData){
+        try {
+            createLineChart(
+                historyData,
+                {title: 'Total urealiseret gevinst', seriesName: 'Total urealiseret gevinst series', currency: 'USD'},
+                'totalValueChart'
+            )
+        } catch (error) {
+            alert('Fejl ved generering af graf')
+            console.log(error)
+        }
+    }
+
+    // Hent data til grafen
+    async function fetchPortfolioValueHistory() {
+        try {
+            const response = await api(`portfolios/${portfolioID}/historical`, 'GET');
+            const portfolioValueHistory = await response.json();
+
+            let historyData = []
+            portfolioValueHistory.forEach(row => {
+                historyData.push({
+                    x: new Date(row.created_at),
+                    y: row.totalUnrealisedPnL
+                })
+            })
+
+            createValueChart(historyData);
+        } catch (error) {
+            alert('Der skete en fejl under hentning af porteføljens værdi historik');
+            console.error('Error fetching portfolio value history:', error);
+        }
+    }
+    await fetchPortfolioValueHistory();
 </script>

@@ -29,9 +29,6 @@ CREATE TABLE Portfolio
    name                  NVARCHAR(255) NOT NULL,
    accountID             INT NOT NULL,
    userID               INT NOT NULL,
-   totalMarketValue      DECIMAL(18, 2) NOT NULL DEFAULT 0,
-   totalRealisedPnL      DECIMAL(18, 2) NOT NULL DEFAULT 0,
-   totalUnrealisedPnL    DECIMAL(18, 2) NOT NULL DEFAULT 0,
    created_at            DATETIME DEFAULT Getdate() NOT NULL,
    updated_at            DATETIME DEFAULT Getdate() NOT NULL,
    CONSTRAINT fk_portfolio_accountid FOREIGN KEY (accountID) REFERENCES Account(id),
@@ -65,9 +62,6 @@ CREATE TABLE Position
    assetID       INT NOT NULL,
    quantity      INT NOT NULL,
    GAK           DECIMAL(18, 2) NOT NULL,
-   unrealisedPnL DECIMAL(18, 2) NOT NULL,
-   realisedPnL   DECIMAL(18, 2) NOT NULL,
-   marketValue   DECIMAL(18, 2) NOT NULL,
    created_at    DATETIME DEFAULT Getdate() NOT NULL,
    updated_at    DATETIME DEFAULT Getdate() NOT NULL,
    CONSTRAINT fk_position_portfolioid FOREIGN KEY (portfolioID) REFERENCES Portfolio(id),
@@ -79,10 +73,11 @@ CREATE TABLE Trade
    id          INT IDENTITY PRIMARY KEY,
    portfolioID INT NOT NULL,
    assetID     INT NOT NULL,
-   quantity    INT NOT NULL,-- number of units
-   tradeRate   DECIMAL(18, 2) NOT NULL,-- price per unit
-   tradingFee  DECIMAL(18, 2) NOT NULL,-- trading fee in money
+   quantity    INT NOT NULL,
+   tradeRate   DECIMAL(18, 2) NOT NULL,
+   tradingFee  DECIMAL(18, 2) NOT NULL,
    tradeType   VARCHAR(4) NOT NULL,-- buy/sell
+   realisedPnL DECIMAL(18, 2),-- realised profit/loss
    created_at  DATETIME DEFAULT Getdate() NOT NULL,
    updated_at  DATETIME DEFAULT Getdate() NOT NULL,
    CONSTRAINT fk_trade_portfolioid FOREIGN KEY (portfolioID) REFERENCES Portfolio(id),
@@ -110,6 +105,7 @@ CREATE TABLE PortfolioValueHistory
    id                   INT IDENTITY PRIMARY KEY,
    portfolioID          INT NOT NULL,
    totalPortfolioValue  DECIMAL(18, 2) NOT NULL,
+   totalUnrealisedPnL DECIMAL(18, 2) NOT NULL,
    created_at           DATETIME DEFAULT Getdate() NOT NULL,
    CONSTRAINT fk_portfoliovaluehistory_portfolioid FOREIGN KEY (portfolioID) REFERENCES Portfolio(id),
 );

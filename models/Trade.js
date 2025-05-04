@@ -6,7 +6,7 @@ import Position from './Position.js';
 
 export default class Trade {
     static table = 'trade';
-    static columns = ['id', 'portfolioID', 'assetID', 'quantity', 'tradeRate', 'tradingFee', 'tradeType', 'created_at',];
+    static columns = ['id', 'portfolioID', 'assetID', 'quantity', 'tradeRate', 'tradingFee', 'tradeType','realisedPnL', 'created_at',];
 
     constructor(data = {}) {
         this.id = data.id;
@@ -16,6 +16,7 @@ export default class Trade {
         this.tradeRate = data.tradeRate;
         this.tradingFee = data.tradingFee;
         this.tradeType = data.tradeType;
+        this.realisedPnL = data.realisedPnL || null;
         this.created_at = data.created_at;
 
         // Håndter hvis symbol er givet
@@ -74,7 +75,7 @@ export default class Trade {
             return {
                 error: 'Account is closed',
             }
-        } else if(account.balance < (this.quantity * this.tradeRate + this.tradingFee) * exchangeRate) {
+        } else if(this.tradeType === 'buy' && account.balance < (this.quantity * this.tradeRate + this.tradingFee) * exchangeRate) {
             return {
                 error: 'Not enough money in account',
             }
@@ -98,7 +99,12 @@ export default class Trade {
             }
         }
 
+        // Udregn PnL via GAK
+        this.realisedPnL = (this.tradeRate - position.GAK) * this.quantity;
+
         try {
+
+
             // Her opretter vi en ny trade og transaktion
             const tradeQuery = await db.request()
             .input('portfolioID', this.portfolioID)
@@ -107,11 +113,12 @@ export default class Trade {
             .input('tradeRate', this.tradeRate)
             .input('tradingFee', this.tradingFee)
             .input('tradeType', this.tradeType)
+            .input('realisedPnL', this.realisedPnL)
             .query(`INSERT INTO
                 ${Trade.table}
-                (portfolioID, assetID, quantity, tradeRate, tradingFee, tradeType)
+                (portfolioID, assetID, quantity, tradeRate, tradingFee, tradeType, realisedPnL)
                 OUTPUT INSERTED.id, INSERTED.portfolioID, INSERTED.assetID, INSERTED.quantity, INSERTED.tradeRate, INSERTED.tradingFee, INSERTED.tradeType
-                VALUES (@portfolioID, @assetID, @quantity, @tradeRate, @tradingFee, @tradeType)`);
+                VALUES (@portfolioID, @assetID, @quantity, @tradeRate, @tradingFee, @tradeType, @realisedPnL)`);
 
             const newTrade = new Trade(tradeQuery.recordset[0]);
             const tradeValue = this.quantity * this.tradeRate + this.tradingFee;
@@ -123,16 +130,9 @@ export default class Trade {
                 throw new Error('Transaction failed');
             }
 
-            if(this.tradeType === 'sell') {
-                // Hvis vi sælger en aktie - så skal vi regne realiseret PnL ud
-                const realisedPnL = (this.tradeRate - position.GAK) * this.quantity;
-                portfolio.realisedPnL += realisedPnL;
-            }
-
 
             // Opdater positionen
             await position.update(this.tradeType, this.quantity, tradeValue);
-            // await portfolio.update();
 
             return true;
         } catch (error) {
