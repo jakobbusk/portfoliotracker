@@ -17,14 +17,6 @@ class Transaction {
         this.created_at = data.created_at;
     }
 
-    static async all(accountID, columns = Transaction.columns) {
-        const result = await db.request().input('accountID', accountID)
-            .query(`SELECT ${columns.join(', ')} FROM ${Transaction.table} WHERE accountID = @accountID`);
-
-        if (result.recordset.length === 0) return [];
-        return result.recordset.map(row => new Transaction(row));
-    }
-
     // Lav en transaktion
     async create() {
 

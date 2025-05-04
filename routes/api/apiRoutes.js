@@ -6,7 +6,7 @@ import portfolioRoutes from './PortfolioRoutes.js'
 import serviceRoutes from './ServicesRoutes.js'
 import tradeRoutes from './TradeRoutes.js'
 import dashboardRoutes from './DashboardRoutes.js'
-import Portfolio from '../../models/Portfolio.js'
+import cronController from '../../controllers/CronController.js'
 
 
 
@@ -23,20 +23,5 @@ router.use('/trades', tradeRoutes)
 
 router.use('/dashboard', dashboardRoutes)
 
-router.get('/cron/:id', async (req, res) => {
-    const id = req.params.id
-    // Loop gennem alle assets i databasen
-    // og opdater dem med nyeste data fra API
-    // steps:
-    // 1. Hent alle assets fra databasen
-    // 2. Loop gennem dem og hent data fra API
-    // 3. Opdater dem i databasen
-    // 5. Opdater porteføljehistorik
-
-    const portfolio = await Portfolio.findByID(id, 2)
-
-    await portfolio.updatePortfolioValueHistory()
-
-    res.status(200).json({ message: 'Cron job endpoint' })
-})
+router.get('/cron', cronController.handleCronJob)
 export default router

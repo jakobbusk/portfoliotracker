@@ -32,8 +32,6 @@ export async function getStockPrice (symbol) {
     try {
         const result = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${process.env.ALPHA_VANTAGE_API_KEY}`);
         const data = await result.json();
-        console.log(data);
-
 
         if (data['Global Quote']) {
             return {price: data['Global Quote']['05. price'], symbol: data['Global Quote']['01. symbol']};

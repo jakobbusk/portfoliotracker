@@ -5,8 +5,7 @@ CREATE TABLE [User]
    name       NVARCHAR(255),
    email      NVARCHAR(255) UNIQUE NOT NULL,
    password   NVARCHAR(255) NOT NULL,
-   created_at DATETIME DEFAULT Getdate(),
-   updated_at DATETIME DEFAULT Getdate()
+   created_at DATETIME DEFAULT Getdate()
 );
 
 CREATE TABLE Account
@@ -14,9 +13,9 @@ CREATE TABLE Account
    id            INT IDENTITY PRIMARY KEY,
    userID        INT NOT NULL,
    name          NVARCHAR(255) NOT NULL,
-   currency      NVARCHAR(255) NOT NULL,
+   currency      NVARCHAR(3) NOT NULL,
    balance       DECIMAL(18, 2) DEFAULT 0,
-   bankReference NVARCHAR(255) DEFAULT NULL,
+   bankReference NVARCHAR(255) NOT NULL,
    closed        BIT DEFAULT 0 NOT NULL,
    created_at    DATETIME DEFAULT Getdate() NOT NULL,
    updated_at    DATETIME DEFAULT Getdate() NOT NULL,
@@ -28,9 +27,8 @@ CREATE TABLE Portfolio
    id                    INT IDENTITY PRIMARY KEY,
    name                  NVARCHAR(255) NOT NULL,
    accountID             INT NOT NULL,
-   userID               INT NOT NULL,
+   userID                INT NOT NULL,
    created_at            DATETIME DEFAULT Getdate() NOT NULL,
-   updated_at            DATETIME DEFAULT Getdate() NOT NULL,
    CONSTRAINT fk_portfolio_accountid FOREIGN KEY (accountID) REFERENCES Account(id),
    CONSTRAINT fk_portfolio_userid FOREIGN KEY (userID) REFERENCES [User](id),
 );
@@ -41,9 +39,8 @@ CREATE TABLE Asset
    name       NVARCHAR(255) NOT NULL,
    symbol     NVARCHAR(255) NOT NULL,
    assetType  NVARCHAR(255) NOT NULL,
-   currency   NVARCHAR(255) NOT NULL,
+   currency   NVARCHAR(3) NOT NULL,
    created_at DATETIME DEFAULT Getdate() NOT NULL,
-   updated_at DATETIME DEFAULT Getdate() NOT NULL,
 );
 
 CREATE TABLE Historicalassetprice
@@ -63,7 +60,6 @@ CREATE TABLE Position
    quantity      INT NOT NULL,
    GAK           DECIMAL(18, 2) NOT NULL,
    created_at    DATETIME DEFAULT Getdate() NOT NULL,
-   updated_at    DATETIME DEFAULT Getdate() NOT NULL,
    CONSTRAINT fk_position_portfolioid FOREIGN KEY (portfolioID) REFERENCES Portfolio(id),
    CONSTRAINT fk_position_assetid FOREIGN KEY (assetID) REFERENCES Asset(id),
 );
@@ -79,7 +75,6 @@ CREATE TABLE Trade
    tradeType   VARCHAR(4) NOT NULL,-- buy/sell
    realisedPnL DECIMAL(18, 2),-- realised profit/loss
    created_at  DATETIME DEFAULT Getdate() NOT NULL,
-   updated_at  DATETIME DEFAULT Getdate() NOT NULL,
    CONSTRAINT fk_trade_portfolioid FOREIGN KEY (portfolioID) REFERENCES Portfolio(id),
    CONSTRAINT fk_trade_assetid FOREIGN KEY (assetID) REFERENCES Asset(id),
 );
@@ -106,6 +101,7 @@ CREATE TABLE PortfolioValueHistory
    portfolioID          INT NOT NULL,
    totalPortfolioValue  DECIMAL(18, 2) NOT NULL,
    totalUnrealisedPnL DECIMAL(18, 2) NOT NULL,
+   totalRealisedPnL   DECIMAL(18, 2) NOT NULL,
    created_at           DATETIME DEFAULT Getdate() NOT NULL,
    CONSTRAINT fk_portfoliovaluehistory_portfolioid FOREIGN KEY (portfolioID) REFERENCES Portfolio(id),
 );

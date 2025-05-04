@@ -11,7 +11,7 @@ class TradeController {
         const userID = req.user.id;
 
         try {
-            const trades = await Trade.all(userID, portfolioID);
+            const trades = await Trade.allByPortfolioID(userID, portfolioID);
             if (!trades) {
                 return res.status(404).json({ message: 'Trades not found' });
             }

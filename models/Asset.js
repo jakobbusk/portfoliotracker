@@ -1,7 +1,7 @@
 import db from '../database/db.js';
 export default class Asset {
     static table = 'asset';
-    static columns = ['id', 'name', 'symbol', 'currency', 'assetType', 'created_at', 'updated_at'];
+    static columns = ['id', 'name', 'symbol', 'currency', 'assetType', 'created_at'];
 
     constructor(data = {}) {
         this.id = data.id;
@@ -10,12 +10,7 @@ export default class Asset {
         this.currency = data.currency || 'USD';
         this.assetType = data.assetType || 'stock';
         this.created_at = data.created_at;
-        this.updated_at = data.updated_at;
     }
-    updated() {
-        this.updated_at = new Date();
-    }
-
     static async findBySymbol(symbol) {
         const query = db.request()
         try {
@@ -56,7 +51,7 @@ export default class Asset {
         }
     }
 
-    async updateAssetPrice(currentAssetPrice) {
+    async updateAssetPrice(currentAssetPrice, assetID = this.id) {
         // Opdaterer den nuværende pris i HistoricalAssetPrice tabellen
         const query = db.request()
         try {

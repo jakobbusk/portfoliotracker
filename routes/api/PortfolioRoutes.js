@@ -15,7 +15,7 @@ router.post('/', checkAuth, PortfolioController.create)
 // Henter top 5 positioner for brugeren
 router.get('/top5/value', checkAuth, PortfolioController.getTop5Value)
 
-// router.get('/top5/upnl', checkAuth, PortfolioController.getTop5uPnL)
+router.get('/top5/upnl', checkAuth, PortfolioController.getTop5UPNL)
 
 // Henter en portefølje
 router.get('/:id',checkAuth, PortfolioController.getPortfolio)

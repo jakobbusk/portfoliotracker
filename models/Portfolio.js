@@ -6,7 +6,7 @@ class Portfolio {
 
     static tableName = 'Portfolio';
 
-    static columns = ['id', 'name', 'accountID','userID', 'totalMarketValue', 'totalUnrealisedPnL','totalRealisedPnL', 'created_at', 'updated_at'];
+    static columns = ['id', 'name', 'accountID','userID', 'created_at'];
 
     constructor(data = {}){
         this.id = data.id;
@@ -14,7 +14,6 @@ class Portfolio {
         this.accountID = data.accountID;
         this.userID = data.userID;
         this.created_at = data.created_at;
-        this.updated_at = data.updated_at;
 
         // Værdier tilføjet fra join
         if('accountName' in data) this.accountName = data.accountName;
@@ -23,10 +22,6 @@ class Portfolio {
         if('realisedPnL' in data) this.realisedPnL = data.realisedPnL;
         if('totalAcquisitionValue' in data) this.totalAcquisitionValue = data.totalAcquisitionValue;
 
-    }
-
-    updated(){
-        this.updated_at = new Date();
     }
 
     static async all(userID, columns = Portfolio.columns) {
@@ -89,21 +84,6 @@ class Portfolio {
         return result;
     }
 
-    async update() {
-        const query = db.request()
-        try {
-            const result = await query
-                .input('id', this.id)
-
-                .query(`UPDATE ${Portfolio.tableName} SET name = @name WHERE id = @id`);
-            return result;
-
-        } catch (error) {
-            console.error('Error updating portfolio:', error);
-            throw error;
-        }
-    }
-
     static async getHistoricalValue(portfolioID, userID) {
         const query = db.request()
         try {
@@ -127,11 +107,26 @@ class Portfolio {
         }
     }
 
+    static async getAllPortfolios(){
+        const query = db.request()
+        try {
+
+            const result = await db.query(`
+                SELECT * FROM Portfolio
+                `)
+            if (result.recordset.length === 0) return [];
+            return result.recordset.map(row => new Portfolio(row));
+        } catch (error) {
+            console.error('Error fetching all portfolios:', error);
+            throw error;
+        }
+    }
+
     async updatePortfolioValueHistory(){
         // Først henter vi alle positioner i porteføljen
         const [positions, trades] = await Promise.all([
             await Position.allByPortfolioID(this.id, this.userID),
-            await Trade.all(this.userID, this.id, ['realisedPnL'])
+            await Trade.allByPortfolioID(this.userID, this.id, ['realisedPnL'])
         ])
 
         let totalPortfolioValue = 0;

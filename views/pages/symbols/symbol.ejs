@@ -7,6 +7,9 @@
 		<div>
 			<h1 id="stockName"></h1>
 		</div>
+        <div class="flex-container">
+            <a id="buyButton" class="button">Køb</a>
+        </div>
 	</header>
 
 	<div class="flex-container flex-column">
@@ -41,6 +44,8 @@
     const symbol = url[url.length - 1];
     const stockName = document.getElementById('stockName');
     stockName.innerText = symbol.toUpperCase() + ' - Historisk data';
+    const buyButton = document.getElementById('buyButton');
+    buyButton.href = `/symbols/${symbol}/trade`;
 
     let data = [];
     let chart;
@@ -151,8 +156,8 @@
             chart = await createLineChart(
                 data,
                 {
-                    title: `${symbol.toUpperCase()} - Historisk data`, 
-                    seriesName: symbol.toUpperCase(), 
+                    title: `${symbol.toUpperCase()} - Historisk data`,
+                    seriesName: symbol.toUpperCase(),
                     currency: 'USD'
                 },
                 'historicalDataChart'

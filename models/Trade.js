@@ -6,7 +6,7 @@ import Position from './Position.js';
 
 export default class Trade {
     static table = 'trade';
-    static columns = ['id', 'portfolioID', 'assetID', 'quantity', 'tradeRate', 'tradingFee', 'tradeType','realisedPnL', 'created_at',];
+    static columns = ['id', 'portfolioID', 'assetID', 'quantity', 'tradeRate', 'tradingFee', 'tradeType','realisedPnL', 'created_at'];
 
     constructor(data = {}) {
         this.id = data.id;
@@ -26,7 +26,7 @@ export default class Trade {
         }
     }
 
-    static async all(userID, portfolioID, columns = Trade.columns) {
+    static async allByPortfolioID(userID, portfolioID, columns = Trade.columns) {
         console.log('Fetching all trades for user:', userID, 'and portfolio:', portfolioID);
 
         const query = db.request()
@@ -82,7 +82,7 @@ export default class Trade {
         }
         // Find positionen forbundet med porteføljen
         let position = await Position.findByPortfolioIDAndAssetID(this.portfolioID, this.assetID);
-        if (!position) {
+        if (!position && this.tradeType == 'buy') {
             // Hvis positionen ikke findes, så opretter vi en ny
             const newPosition = new Position({
                 portfolioID: this.portfolioID,
@@ -90,6 +90,10 @@ export default class Trade {
             });
             await newPosition.create();
             position = newPosition;
+        } else if (!position && this.tradeType == 'sell') {
+            return {
+                error: 'Position not found',
+            }
         }
 
         // Nu tjekker vi om vi kan sælge aktien

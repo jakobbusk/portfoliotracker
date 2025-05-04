@@ -28,6 +28,19 @@ class PortfolioController {
         }
     }
 
+    static async getTop5UPNL(req, res) {
+        const userID = req.user.id;
+
+        try {
+            const positions = await Position.top5UPNL(userID);
+            console.log('Top 5 UPNL:', positions);
+
+            return res.status(200).json(positions);
+        } catch (error) {
+            return res.status(500).json({ message: 'Error fetching top 5 positions', error });
+        }
+    }
+
     static async getPortfolio(req, res) {
         const portfolioID = req.params.id;
         const userID = req.user.id;

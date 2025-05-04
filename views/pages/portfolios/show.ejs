@@ -101,6 +101,9 @@
             const portfolioDetails = await response.json();
             portfolioName.innerText = portfolioDetails.name;
             portfolioDesc.innerText = `Tilknyttet konto: ${portfolioDetails.accountName}`;
+            if(portfolioDetails.realisedPnL == null) {
+                portfolioDetails.realisedPnL = 0;
+            }
             totalRealisedPnLText.innerText = portfolioDetails.realisedPnL.toLocaleString('da-DK', {
                 style: 'currency',
                 currency: 'USD',
@@ -108,7 +111,7 @@
 
 
         } catch (error) {
-            alert('Der skete en fejl under hentning af porteføljen');
+            alert('Der opstod en fejl under hentning af porteføljen');
             console.error('Error fetching portfolios:', error);
         }
     }

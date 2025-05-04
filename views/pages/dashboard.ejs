@@ -82,9 +82,8 @@
 	}
 	getStatistics();
 
-
-	//top 5 tabeller
-	const top5options = {
+	//top 5 tabel
+	const top5Valueoptions = {
 		link: {
 			href: '/symbols',
 			key: 'assetSymbol',
@@ -132,12 +131,78 @@
 		const data = await response.json();
 		createTable(
 			data,
-			top5options,
+			top5Valueoptions,
 			'top5Value'
 		)
 	}
-
 	top5Value();
+
+
+
+	//top 5 tabeller
+	const top5UnrealisedOptions = {
+	link: {
+		href: '/symbols',
+		key: 'assetSymbol',
+	},
+	columns: [
+		{
+			name: 'Navn',
+			key: 'assetName',
+			callback: (value) => {
+				const assetName = value.assetName;
+				const assetSymbol = value.assetSymbol;
+				const element = document.createElement('span');
+				element.innerHTML =`${assetName}<p>${assetSymbol}</p>`;
+				return element
+			}
+		},
+		{
+			name: 'Portefølje',
+			key: '',
+			callback: (value) => {
+				const portfolioID = value.portfolioID;
+				const portfolioName = value.portfolioName;
+				const element = document.createElement('a');
+				element.className = 'table-button';
+				element.innerText = portfolioName;
+				element.href = `/portfolios/${portfolioID}`
+				return element;
+			}
+		},
+		{
+			name: 'Urealiseret gevinst',
+			key: 'unrealisedPnL',
+			callback: (row) => {
+				return Intl.NumberFormat('da-DK', {
+							style: 'currency',
+							currency: 'USD',
+				}).format(row.unrealisedPnL);
+			},
+		},
+		{
+				name: 'Markedsværdi',
+				key: 'totalValue',
+				callback: (row) => {
+					return Intl.NumberFormat('da-DK', {
+                                style: 'currency',
+                                currency: 'USD',
+                            }).format(row.totalValue);
+				},
+			}
+	]
+}
+
+	async function top5Unrealised() {
+		const response = await api('portfolios/top5/upnl')
+		const data = await response.json();
+		createTable(
+			data,
+			top5UnrealisedOptions,
+			'top5Unrealised'
+		)
+	}
+	top5Unrealised();
 
 
 

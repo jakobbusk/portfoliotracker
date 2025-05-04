@@ -9,7 +9,7 @@ class User {
     // objekt. Vi kan derfor tilgå variablen ved at skrive User.table
     static table = '[User]';
     // Her definerer vi en statisk variabel som indeholder navnene på kolonnerne i tabellen.
-    static columns = ['id','username', 'name', 'email', 'password', 'created_at', 'updated_at'];
+    static columns = ['id','username', 'name', 'email', 'password', 'created_at'];
 
     // Her defineres vores konstruktør.
     // Vi bruger en default parameter så vi kan kalde User-klassen uden at sende data med.
@@ -22,7 +22,7 @@ class User {
         this.username = data.username
         this.email = data.email;
         this.password = data.password;
-
+        this.created_at = data.created_at;
     }
 
     // Her benytter vi os af "static", så vi kan kalde metoden uden at "oprette" et objekt.
@@ -70,14 +70,6 @@ class User {
         console.log(result);
         return result;
     }
-
-    static async delete(){
-        const [result] = await db.query(`DELETE FROM ${this.table} WHERE id = ?`, [this.id]);
-        return result;
-    }
-
-
-
 }
 
 

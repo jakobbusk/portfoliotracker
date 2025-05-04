@@ -2,7 +2,7 @@ import db from '../database/db.js';
 export default class Position {
 
     static tableName = 'Position';
-    static columns = ['id', 'portfolioID', 'assetID', 'quantity', 'GAK','realisedPnL', 'unrealisedPnL','marketValue', 'created_at', 'updated_at'];
+    static columns = ['id', 'portfolioID', 'assetID', 'quantity', 'GAK', 'created_at'];
 
     constructor(data = {}) {
         this.id = data.id;
@@ -10,17 +10,14 @@ export default class Position {
         this.assetID = data.assetID;
         this.quantity = data.quantity || 0;
         this.GAK = data.GAK || 0;
-        this.unrealisedPnL = data.unrealisedPnL || 0;
-        this.realisedPnL = data.realisedPnL || 0;
-        // this.marketValue = data.marketValue || 0;
         this.created_at = data.created_at;
-        this.updated_at = data.updated_at;
 
         // Håndter ekstra data fra join
         if('assetName' in data) this.assetName = data.assetName;
         if('assetSymbol' in data) this.assetSymbol = data.assetSymbol;
         if('totalValue' in data) this.totalValue = data.totalValue;
         if('portfolioName' in data) this.portfolioName = data.portfolioName;
+        if('unrealisedPnL' in data) this.unrealisedPnL = data.unrealisedPnL;
 
     }
 
@@ -82,7 +79,6 @@ export default class Position {
     }
 
 
-    // TODO
     static async top5Value(userID, columns = Position.columns) {
         // Hent de 5 største værdier på positioner med userID
         // Alle porteføljer
@@ -117,7 +113,40 @@ export default class Position {
                 `)
 
                 console.log('result:', result);
+            if (result.recordset.length === 0) return [];
+            return result.recordset.map(row => new Position(row));
+        } catch (error) {
+            console.error('Error fetching positions:', error);
+            throw error;
+        }
+    }
 
+    static async top5UPNL(userID, columns = Position.columns) {
+        const query = db.request()
+        try {
+            const result = await query
+                .input('userID', userID)
+                .query(`SELECT TOP 5
+                    ${columns.map(col => 'p.' + col).join(', ')},
+                    a.name AS assetName,
+                    a.symbol AS assetSymbol,
+                    port.name AS portfolioName,
+                    hap.assetPrice as currentPrice,
+                    (p.quantity * (hap.assetPrice - p.GAK)) AS unrealisedPnL,
+                    (p.quantity * hap.assetPrice) as totalValue
+                    FROM ${Position.tableName} p
+                    JOIN Portfolio port ON p.portfolioID = port.id
+                    JOIN Asset a ON p.assetID = a.id
+                    JOIN HistoricalAssetPrice hap ON p.assetID = hap.assetID
+                    WHERE port.userID = @userID
+                    AND hap.created_at = (
+                        SELECT TOP 1 created_at
+                        FROM HistoricalAssetPrice
+                        WHERE assetID = p.assetID
+                        ORDER BY created_at DESC)
+                    ORDER BY unrealisedPnL DESC
+
+                `)
 
             if (result.recordset.length === 0) return [];
             return result.recordset.map(row => new Position(row));
@@ -125,6 +154,7 @@ export default class Position {
             console.error('Error fetching positions:', error);
             throw error;
         }
+
     }
 
 
@@ -149,9 +179,8 @@ export default class Position {
             const result = await query.input('portfolioID', this.portfolioID)
                 .input('assetID', this.assetID)
                 .input('quantity', this.quantity)
-                .input('unrealisedPnL', this.unrealisedPnL)
                 .input('GAK', this.GAK)
-                .query(`INSERT INTO ${Position.tableName} (portfolioID, assetID, quantity, unrealisedPnL, GAK) OUTPUT INSERTED.* VALUES (@portfolioID, @assetID, @quantity, @unrealisedPnL, @GAK)`);
+                .query(`INSERT INTO ${Position.tableName} (portfolioID, assetID, quantity, GAK) OUTPUT INSERTED.* VALUES (@portfolioID, @assetID, @quantity, @GAK)`);
 
             return result.recordset[0];
         } catch (error) {
@@ -188,10 +217,8 @@ export default class Position {
             const result = await query.input('portfolioID', this.portfolioID)
                 .input('assetID', this.assetID)
                 .input('quantity', this.quantity)
-                .input('unrealisedPnL', this.unrealisedPnL)
                 .input('GAK', this.GAK)
-                .input('updated_at', this.updated_at)
-                .query(`UPDATE ${Position.tableName} SET quantity = @quantity, unrealisedPnL = @unrealisedPnL, GAK = @GAK, updated_at = @updated_at
+                .query(`UPDATE ${Position.tableName} SET quantity = @quantity, GAK = @GAK
                     WHERE portfolioID = @portfolioID AND assetID = @assetID`);
 
             return result.recordset;
@@ -201,39 +228,18 @@ export default class Position {
         }
     }
 
-    // Logik til at opdatere PnL
-    async updatePnL(currentPrice) {
-        // unrealisedPnL = (currentPrice - GAK) * quantity
-        this.unrealisedPnL = (currentPrice - this.GAK) * this.quantity;
-        this.updated_at = new Date();
-        const query = db.request()
-        try {
-            const result = await query.input('portfolioID', this.portfolioID)
-                .input('assetID', this.assetID)
-                .input('unrealisedPnL', this.unrealisedPnL)
-                .input('updated_at', this.updated_at)
-                .query(`UPDATE ${Position.tableName} SET unrealisedPnL = @unrealisedPnL, updated_at = @updated_at
-                    WHERE portfolioID = @portfolioID AND assetID = @assetID`);
 
-            return result.recordset;
-        } catch (error) {
-            console.error('Error updating position PnL:', error);
-            throw error;
+        // Logik til at slette en position når den er 0
+        async delete() {
+            const query = db.request()
+            try {
+                const result = await query.input('portfolioID', this.portfolioID)
+                    .input('assetID', this.assetID)
+                    .query(`DELETE FROM ${Position.tableName} WHERE portfolioID = @portfolioID AND assetID = @assetID`);
+                return result.recordset;
+            } catch (error) {
+                console.error('Error deleting position:', error);
+                throw error;
+            }
         }
-    }
-
-
-    // Logik til at slette en position
-    async delete() {
-        const query = db.request()
-        try {
-            const result = await query.input('portfolioID', this.portfolioID)
-                .input('assetID', this.assetID)
-                .query(`DELETE FROM ${Position.tableName} WHERE portfolioID = @portfolioID AND assetID = @assetID`);
-            return result.recordset;
-        } catch (error) {
-            console.error('Error deleting position:', error);
-            throw error;
-        }
-    }
 }
