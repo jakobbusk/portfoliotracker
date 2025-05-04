@@ -140,7 +140,20 @@
                         currency: row.assetCurrency || 'USD',
                     });
                 }
-            }
+            },
+            {
+						name: 'Handlinger',
+						key: 'symbol',
+						callback: (value) => {
+							const symbol = value.symbol;
+							const link = document.createElement('a');
+							link.className = 'table-button'
+							link.href = `/symbols/${symbol}/sell`;
+							link.innerText = 'Sælg';
+							return link;
+						}
+
+					}
         ]
     }
     const totalMarketValueText = document.getElementById('totalMarketValue');
