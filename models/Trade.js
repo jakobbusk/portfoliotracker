@@ -16,7 +16,7 @@ export default class Trade {
         this.tradeRate = data.tradeRate;
         this.tradingFee = data.tradingFee;
         this.tradeType = data.tradeType;
-        this.realisedPnL = data.realisedPnL || null;
+        this.realisedPnL = data.realisedPnL || 0;
         this.created_at = data.created_at;
 
         // Håndter hvis symbol er givet
@@ -99,8 +99,10 @@ export default class Trade {
             }
         }
 
-        // Udregn PnL via GAK
-        this.realisedPnL = (this.tradeRate - position.GAK) * this.quantity;
+        if(this.tradeType == 'sell'){
+            // Udregn PnL via GAK
+            this.realisedPnL = (this.tradeRate - position.GAK) * this.quantity;
+        }
 
         try {
 
@@ -133,6 +135,9 @@ export default class Trade {
 
             // Opdater positionen
             await position.update(this.tradeType, this.quantity, tradeValue);
+
+            // Opdater porteføljens value history
+            await portfolio.updatePortfolioValueHistory();
 
             return true;
         } catch (error) {

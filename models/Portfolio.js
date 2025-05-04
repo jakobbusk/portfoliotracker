@@ -1,5 +1,6 @@
 import db from '../database/db.js';
 import Position from './Position.js';
+import Trade from './Trade.js';
 
 class Portfolio {
 
@@ -128,15 +129,32 @@ class Portfolio {
 
     async updatePortfolioValueHistory(){
         // Først henter vi alle positioner i porteføljen
-        const positions = await Position.allByPortfolioID(this.id, this.userID);
+        const [positions, trades] = await Promise.all([
+            await Position.allByPortfolioID(this.id, this.userID),
+            await Trade.all(this.userID, this.id, ['realisedPnL'])
+        ])
 
         let totalPortfolioValue = 0;
         let totalUnrealisedPnL = 0;
+        let totalRealisedPnL = 0;
 
         positions.forEach(position => {
             totalPortfolioValue += position.totalValue;
             totalUnrealisedPnL += position.totalValue - (position.GAK * position.quantity);
         })
+
+        trades.forEach(trade => {
+            if(trade.realisedPnL == null) return;
+            totalRealisedPnL += trade.realisedPnL;
+        })
+
+        console.log('Positions:', positions);
+        console.log('Trades:', trades);
+        console.log('Total portfolio value:', totalPortfolioValue);
+        console.log('Total unrealised PnL:', totalUnrealisedPnL);
+        console.log('Total realised PnL:', totalRealisedPnL);
+
+
 
 
         // Opdater historisk værdi for porteføljen
@@ -146,8 +164,9 @@ class Portfolio {
                 .input('portfolioID', this.id)
                 .input('totalPortfolioValue', totalPortfolioValue)
                 .input('totalUnrealisedPnL', totalUnrealisedPnL)
-                .query(`INSERT INTO PortfolioValueHistory (portfolioID, totalPortfolioValue, totalUnrealisedPnL)
-                    VALUES (@portfolioID, @totalPortfolioValue, @totalUnrealisedPnL)`);
+                .input('totalRealisedPnL', totalRealisedPnL)
+                .query(`INSERT INTO PortfolioValueHistory (portfolioID, totalPortfolioValue, totalUnrealisedPnL, totalRealisedPnL)
+                    VALUES (@portfolioID, @totalPortfolioValue, @totalUnrealisedPnL, @totalRealisedPnL)`);
             return result;
 
         } catch (error) {
@@ -155,16 +174,6 @@ class Portfolio {
             throw error;
         }
     }
-
-    async buy() {
-
-    }
-
-    async sell() {
-        // TODO
-    }
-
-
 
 }
 

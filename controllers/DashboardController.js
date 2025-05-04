@@ -8,40 +8,31 @@ export default class DashboardController {
         console.log('Fetching dashboard for user:', userID);
 
         try {
-
-            // Først henter vi
-            // total værdi
-            // total realiseret gevinst
-            // total urealiseret gevinst
-            // Værdierne udregnes i SQL
-
-
-            // Query til at hente total værdi
+            let totalValue = 0;
+            let totalUnrealisedPnL = 0;
+            let totalRealisedPnL = 0;
+            // Hent alle de nyeste porteføljehistorik for hver portefølje
             const result = await query.input('userID', userID)
                 .query(`
-                    SELECT
-                        SUM(p.quantity * hap.assetPrice) AS totalValue,
-                        SUM(CASE WHEN t.tradeType = 'buy' THEN (p.quantity * hap.assetPrice) - ELSE 0 END) AS realisedPnL,
-                        SUM(CASE WHEN t.tradeType = 'sell' THEN (p.quantity * hap.assetPrice) ELSE 0 END) AS unrealisedPnL
-                    FROM Position p
-                    JOIN Portfolio port ON p.portfolioID = port.id
-                    JOIN Asset a ON p.assetID = a.id
-                    JOIN HistoricalAssetPrice hap ON a.id = hap.assetID
-                    JOIN Trade t ON p.portfolioID = t.portfolioID AND p.assetID = t.assetID
-                    WHERE port.userID = @userID
-                    AND hap.created_at = (
-                        SELECT TOP 1 created_at
-                        FROM HistoricalAssetPrice
-                        WHERE assetID = p.assetID
-                        ORDER BY created_at DESC)
-                    GROUP BY p.portfolioID
-                    ORDER BY totalValue DESC
+                    SELECT p.id AS portfolioID, p.name AS portfolioName, pv.totalPortfolioValue, pv.totalUnrealisedPnL, pv.totalRealisedPnL
+                    FROM Portfolio p
+                    JOIN PortfolioValueHistory pv ON p.id = pv.portfolioID
+                    WHERE p.userID = @userID
+                    AND pv.created_at = (SELECT MAX(created_at) FROM PortfolioValueHistory WHERE portfolioID = p.id)
                 `)
+
+            const portfolios = result.recordset;
+            portfolios.forEach(portfolio => {
+                totalValue += portfolio.totalPortfolioValue;
+                totalUnrealisedPnL += portfolio.totalUnrealisedPnL;
+                totalRealisedPnL += portfolio.totalRealisedPnL;
+            })
+
             console.log('result:', result);
             return res.status(200).json({
-                totalValue: result.recordset[0].totalValue,
-                realisedPnL: result.recordset[0].realisedPnL,
-                unrealisedPnL: result.recordset[0].unrealisedPnL
+                totalValue,
+                totalUnrealisedPnL,
+                totalRealisedPnL,
             });
 
         } catch (error) {

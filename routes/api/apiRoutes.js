@@ -23,7 +23,8 @@ router.use('/trades', tradeRoutes)
 
 router.use('/dashboard', dashboardRoutes)
 
-router.get('/cron', async (req, res) => {
+router.get('/cron/:id', async (req, res) => {
+    const id = req.params.id
     // Loop gennem alle assets i databasen
     // og opdater dem med nyeste data fra API
     // steps:
@@ -32,7 +33,7 @@ router.get('/cron', async (req, res) => {
     // 3. Opdater dem i databasen
     // 5. Opdater porteføljehistorik
 
-    const portfolio = await Portfolio.findByID(24, 2)
+    const portfolio = await Portfolio.findByID(id, 2)
 
     await portfolio.updatePortfolioValueHistory()
 

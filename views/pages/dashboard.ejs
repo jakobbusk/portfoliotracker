@@ -10,36 +10,28 @@
 		</div>
 	</header>
 	<div class="flex-container">
-		<div class="flex-item-fullwidth stats-card" id="totalValue">
+		<div class="flex-item-fullwidth stats-card">
 			<h3>Total værdi</h3>
 			<div class="flex-row">
-				<p class="negative">-1,9%</p>
-				<p class="stats-value">X kr.</p>
+			  <p class="stats-value" id="totalValue">henter...</p>
 			</div>
-		</div>
-
-		<div class="flex-item-fullwidth stats-card" id="totalRealisedGains">
+		  </div>
+		<div class="flex-item-fullwidth stats-card" >
 			<h3>Total realiseret gevinst</h3>
 			<div class="flex-row">
-				<p class="negative">-1,9%</p>
-				<p class="stats-value">X kr.</p>
+			  <p class="stats-value" id="totalRealisedPnL">henter...</p>
 			</div>
-		</div>
+		  </div>
 
-		<div class="flex-item-fullwidth stats-card" id="totalUnrealisedGains">
+		  <div class="flex-item-fullwidth stats-card">
 			<h3>Total urealiseret gevinst</h3>
 			<div class="flex-row">
-				<p class="negative">-1,9%</p>
-				<p class="stats-value">X kr.</p>
+			  <p class="stats-value" id="totalUnrealisedPnL">henter...</p>
 			</div>
-		</div>
+		  </div>
+
 
 	</div>
-
-	<div class="flex-container">
-		<div id="totalValueChart" class="flex-item flex-item-fullwidth"></div>
-	</div>
-
 	<div class="flex-container">
 		<div class="flex-item flex-item-fullwidth">
 			<h2>Top 5 værdipapirer baseret på værdi</h2>
@@ -61,6 +53,34 @@
 	import api from '/assets/js/api.js';
     import createTable from '/assets/js/table.js';
 	import {createLineChart} from '/assets/js/chart.js';
+
+	const totalValueText = document.getElementById('totalValue');
+	const totalRealisedPnLText = document.getElementById('totalRealisedPnL');
+	const totalUnrealisedPnLText = document.getElementById('totalUnrealisedPnL');
+	// Funktion til at hente 3 statistikker
+	async function getStatistics(){
+		try {
+			const response = await api('dashboard');
+			const data = await response.json();
+
+			totalValueText.innerText = Intl.NumberFormat('da-DK', {
+				style: 'currency',
+				currency: 'USD',
+			}).format(data.totalValue);
+			totalRealisedPnLText.innerText = Intl.NumberFormat('da-DK', {
+				style: 'currency',
+				currency: 'USD',
+			}).format(data.totalRealisedPnL);
+			totalUnrealisedPnLText.innerText = Intl.NumberFormat('da-DK', {
+				style: 'currency',
+				currency: 'USD',
+			}).format(data.totalUnrealisedPnL);
+		} catch (error) {
+			console.error(error);
+			alert('Der opstod en fejl under hentning af statistikkerne. Prøv venligst igen senere.');
+		}
+	}
+	getStatistics();
 
 
 	//top 5 tabeller
@@ -118,5 +138,7 @@
 	}
 
 	top5Value();
+
+
 
 </script>
