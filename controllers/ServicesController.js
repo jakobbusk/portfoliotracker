@@ -21,7 +21,6 @@ class ServicesController {
 
     // Hent nuværende aktiekurser for given symbol
     static async currentStockPrice(req,res){
-        return res.status(200).json({ price: 100})
         const symbol = req.params.symbol
         try {
             const result = await getStockPrice(symbol)
