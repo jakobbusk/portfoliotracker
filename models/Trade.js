@@ -131,7 +131,7 @@ export default class Trade {
 
 
             // Opdater positionen
-            // await position.update(this.tradeType, this.quantity, tradeValue);
+            await position.update(this.tradeType, this.quantity, tradeValue);
             // await portfolio.update();
 
             return true;
