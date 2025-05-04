@@ -186,12 +186,6 @@
     makeTradeForm.addEventListener('submit',  async (event) => {
         event.preventDefault();
         submitButton.disabled = true; //undgå der laves to handler ved dobbeltklik
-        if(accountBalanceAfter < 0) {
-            alert("Du har ikke dækning")
-            submitButton.disabled = false;
-            return
-        }
-
         try {
             const response = await api('trades', 'POST', {
                 symbol: symbol,
@@ -202,11 +196,25 @@
                 exchangeRate: exchangeRate,
                 tradeType: 'sell',
             });
-            alert('Handel gennemført')
+
+
+            if(response.status == 201){
+                alert('Handel gennemført')
+                window.location.replace(`/portfolios/${parseInt(portfolioSelect.value)}`)
+            }
+            if(response.status == 400){
+                const responsedata = await response.json();
+
+                alert(responsedata.error)
+                submitButton.disabled = false;
+            }
+
         } catch (error) {
+            console.log(error);
+            submitButton.disabled = false;
+
             alert('Der skete en fejl med handel')
         }
-        window.location.replace(`/portfolios/${parseInt(portfolioSelect.value)}`)
     })
 
 

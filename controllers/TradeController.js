@@ -64,6 +64,8 @@ class TradeController {
         try {
             const createdTrade = await trade.create(req.user.id, exchangeRate);
             if(createdTrade && createdTrade.error) {
+                console.log('Error creating trade:', createdTrade.error);
+
                 return res.status(400).json({ error: createdTrade.error });
             } else {
                 return res.status(201).json({ tradeID: createdTrade.id });
