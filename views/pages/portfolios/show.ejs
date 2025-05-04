@@ -145,7 +145,7 @@
 						name: 'Handlinger',
 						key: 'symbol',
 						callback: (value) => {
-							const symbol = value.symbol;
+							const symbol = value.assetSymbol;
 							const link = document.createElement('a');
 							link.className = 'table-button'
 							link.href = `/symbols/${symbol}/sell`;
