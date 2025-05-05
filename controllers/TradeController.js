@@ -35,10 +35,13 @@ class TradeController {
         // Hvis asset ikke findes så opretter vi den.
         if(!assetExists) {
             const assetDetails = await findStocksBySymbol(symbol);
-            if(assetDetails.length === 0) {
+            //Finnhub API returnerer ikke nødvendigvis det resultat med matchende symbol først.
+            //Derfor bruger vi map og indexOf til at finde Jegsresultatet med det rigtige symbol.
+            let resultIndex = assetDetails.map((stock) => stock.symbol == symbol.toUpperCase()).indexOf(true);
+            if(assetDetails.length === 0 || resultIndex === -1) {
                 return res.status(404).json({ message: 'Asset not found' });
             }
-            const asset = new Asset({ symbol: assetDetails[0].symbol, name: assetDetails[0].description });
+            const asset = new Asset({ symbol: assetDetails[resultIndex].symbol, name: assetDetails[resultIndex].description });
             try {
                 // Opretter asset i databasen
                 const newAsset = await asset.create(tradeRate);
