@@ -10,10 +10,10 @@ document.getElementById('register').addEventListener('submit', async function (e
 
     const res = await register(name, username, email, password);
     let body = await res.json()
-    
+
     if(res.status === 200) {
         localStorage.setItem('password', password);
-        localStorage.setItem('email', email);
+        localStorage.setItem('username', username);
         alert(`Velkommen, ${username}!`);
         window.location.href = '/dashboard';
     } else if (res.status === 400) {

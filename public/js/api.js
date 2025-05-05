@@ -2,7 +2,7 @@
 // Den bruges til at håndtere alle requests til backend
 export default async function api(endpoint, method = 'GET', body = null) {
 
-    const username = localStorage.getItem('email');
+    const username = localStorage.getItem('username');
     const password = localStorage.getItem('password');
 
 

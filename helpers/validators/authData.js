@@ -1,12 +1,12 @@
 // valider login data
 
-export function validateLoginData({email, password}) {
+export function validateLoginData({username, password}) {
 
     const errors = {}
 
-    // tjek om email er tom
-    if (!email || email.trim() === '' || email.length < 5 || email.length > 50 || !email.includes('@')) {
-        errors.email = 'Fejl på email'
+    // tjek om username er tom
+    if (!username || username.trim() === '' || username.length < 2 || username.length > 50) {
+        errors.username = 'Fejl på brugernavn'
     }
 
     // tjek om password er tom
