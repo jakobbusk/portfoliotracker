@@ -78,7 +78,9 @@ export default class AuthController {
         // Opret bruger
         const user = new User({ name, email,username, password })
         try {
-            await user.create()
+            console.log(await user.create());
+
+
         } catch (error) {
             console.log(error);
             return res.status(500).json({ message: 'User creation failed' })

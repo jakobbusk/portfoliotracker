@@ -1,7 +1,6 @@
 // REF: https://expressjs.com/en/guide/routing.html#express-router
 import express from 'express'
 import AuthController from '../../controllers/AuthController.js'
-import checkAuth from '../../middleware/auth.js'
 const router = express.Router()
 
 

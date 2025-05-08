@@ -15,9 +15,6 @@ const config = {
 };
 
 
-// REF: https://sidorares.github.io/node-mysql2/docs
-// Vi bruger createPool i stedet for createConnection. Det er mere effektivt
-// i forhold til mange requests.
 const pool = new sql.ConnectionPool(config);
 
 export default pool
