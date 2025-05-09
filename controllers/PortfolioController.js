@@ -4,6 +4,7 @@ import Position from "../models/Position.js";
 
 class PortfolioController {
 
+    //henter alle porteføljer for en bruger
     static async getAll(req, res) {
 
         const userID = req.user.id;
@@ -17,6 +18,7 @@ class PortfolioController {
 
     }
 
+    //henter top 5 positioner efter værdi, på tværs af porteføljer
     static async getTop5Value(req, res) {
         const userID = req.user.id;
 
@@ -28,6 +30,7 @@ class PortfolioController {
         }
     }
 
+    //henter top 5 positioner efter urealiseret gevinst, på tværs af porteføljer
     static async getTop5UPNL(req, res) {
         const userID = req.user.id;
 
@@ -41,6 +44,7 @@ class PortfolioController {
         }
     }
 
+    //henter specifik portefølje med navn på tilknyttet konto og realiseret gevinst.
     static async getPortfolio(req, res) {
         const portfolioID = req.params.id;
         const userID = req.user.id;
@@ -58,6 +62,7 @@ class PortfolioController {
 
     }
 
+    //hent historiske værdier for en portefølje
     static async getPortfolioHistoricalValue(req, res) {
         const portfolioID = req.params.id;
         const userID = req.user.id;
@@ -76,6 +81,7 @@ class PortfolioController {
 
     }
 
+    //hent alle positioner tilhørende en specifik portefølje
     static async getPositions(req, res) {
         const portfolioID = req.params.id;
         const userID = req.user.id;
@@ -92,6 +98,7 @@ class PortfolioController {
         }
     }
 
+    //hent en specifik position
     static async getPosition(req, res) {
         const portfolioID = req.params.id;
         const userID = req.user.id;
@@ -109,6 +116,7 @@ class PortfolioController {
         }
     }
 
+    //opret en portefølje
     static async create(req, res) {
         const {name, accountID} = req.body;
         const userID = req.user.id;
@@ -135,6 +143,7 @@ class PortfolioController {
 
     }
 
+    //hent handler tilknyttet en bestemt portefølje
     static async getTrades(req,res){
         const portfolioID = req.params.id;
         const userID = req.user.id;
@@ -151,11 +160,13 @@ class PortfolioController {
 
     }
 
+    //opret handel
     static async createTrade(req,res){
 
         const portfolioID = req.params.id;
         const userID = req.user.id;
 
+        //dekonstruer body til quantity og tradeRate
         const {quantity, tradeRate} = req.body;
 
         // Validering af input

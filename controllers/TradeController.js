@@ -6,6 +6,7 @@ import { findStocksBySymbol } from "../services/finnhubAPI/index.js";
 
 class TradeController {
 
+    //hent handler tilknyttet en specifik portefølje
     static async getTrades(req, res) {
         const portfolioID = req.params.portfolioID;
         const userID = req.user.id;
@@ -21,6 +22,7 @@ class TradeController {
         }
     }
 
+    //håndtering af trade, sikrer at der er styr på det asset der handles og kalder create metoden i trade
     static async handleTrade(req, res) {
         const { portfolioID, symbol, quantity, tradeRate, tradingFee, tradeType, exchangeRate } = req.body;
         const userID = req.user.id;
@@ -35,13 +37,15 @@ class TradeController {
         // Hvis asset ikke findes så opretter vi den.
         if(!assetExists) {
             const assetDetails = await findStocksBySymbol(symbol);
+
             //Finnhub API returnerer ikke nødvendigvis det resultat med matchende symbol først.
-            //Derfor bruger vi map og indexOf til at finde Jegsresultatet med det rigtige symbol.
+            //Derfor bruger vi map og indexOf til at finde resultatet med det rigtige symbol.
             let resultIndex = assetDetails.map((stock) => stock.symbol == symbol.toUpperCase()).indexOf(true);
             if(assetDetails.length === 0 || resultIndex === -1) {
                 return res.status(404).json({ message: 'Asset not found' });
             }
             const asset = new Asset({ symbol: assetDetails[resultIndex].symbol, name: assetDetails[resultIndex].description });
+
             try {
                 // Opretter asset i databasen
                 const newAsset = await asset.create(tradeRate);
@@ -51,9 +55,11 @@ class TradeController {
             }
         } else {
             assetID = assetExists.id;
+            //hvis asset allerede eksisterer, opdateres kursen i databasen
             await assetExists.updateAssetPrice(tradeRate);
         }
 
+        //opret trade objekt
         const trade = new Trade({
             portfolioID,
             assetID,
@@ -65,6 +71,7 @@ class TradeController {
         });
 
         try {
+            //kald create til at lave handlen
             const createdTrade = await trade.create(req.user.id, exchangeRate);
             if(createdTrade && createdTrade.error) {
                 console.log('Error creating trade:', createdTrade.error);

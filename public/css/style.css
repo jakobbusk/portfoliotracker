@@ -152,18 +152,6 @@ header {
 }
 
 /*stats cards*/
-/*.stats-card { ------------Burde måske bare fjernes da vi bare bruger flex-item
-    /* card to hold
-        title - top left
-        value - bottom right
-        description - bottom left
-        icon - top right
-    *//*
-    background-color: #1E1E1E;
-    padding: 20px;
-    border-radius: 6px;
-
-}*/
 .stats-card h3 {
     font-size: 7pt;
     color: #84837E;

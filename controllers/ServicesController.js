@@ -49,10 +49,10 @@ class ServicesController {
         }
     }
 
-    // Lav getConversionRate
+    //hent vekselkurs for valuta
     static async getConversionRate(req,res){
-        const base = req.params.base
-        const target = req.params.target
+        const base = req.params.base //fra denne valuta
+        const target = req.params.target //til denne valuta
 
         try {
             const {base_code, target_code, conversion_rate} = await getConversionRate(base, target)

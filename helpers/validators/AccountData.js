@@ -1,4 +1,6 @@
 import { availableCurrenciesISO } from "../currencies.js";
+
+//validerer input data når der oprettes en konto
 export function validateAccountData ({name, currency, bankReference}) {
     const errors = [];
 

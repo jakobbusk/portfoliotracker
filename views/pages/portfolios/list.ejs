@@ -45,8 +45,6 @@
                         if (row.totalAcquisitionValue === null) {
                             return '0';
                         }
-                        console.log(row.totalAcquisitionValue);
-
                         return row.totalAcquisitionValue = row.totalAcquisitionValue.toLocaleString('da-DK', { style: 'currency', currency: 'USD' });
                     }}
                 ]

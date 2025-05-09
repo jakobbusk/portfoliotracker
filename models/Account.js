@@ -21,6 +21,7 @@ class Account {
         this.updated_at = new Date();
     }
 
+    //hent alle accounts tilhørende en bruger
     static async all(userID, columns = Account.columns) {
         const result = await db.request().input('userID', userID)
             .query(`SELECT ${columns.join(', ')} FROM ${Account.table} WHERE userID = @userID`);
@@ -29,6 +30,7 @@ class Account {
         return result.recordset.map(row => new Account(row));
     }
 
+    //hent en konto ud fra id
     static async findByID(id, userID, columns = Account.columns) {
         const query = db.request()
         try {
@@ -42,6 +44,7 @@ class Account {
         }
     }
 
+    //hent en konto med transaktioner og portefølje tilknyttet transaktionerne
     static async findByIDWithTransactions(id, userID, columns = Account.columns) {
 
         const query = db.request()
@@ -58,21 +61,22 @@ class Account {
                     WHERE a.id = @id AND a.userID = @userID
                     `)
             if (result.recordset.length === 0) return null;
+
             const account = new Account(result.recordset[0]);
             account.transactions = []
             console.log(result.recordset);
             let balanceAfter = 0;
-            if(result.recordset[0].transactionid) {
-                for (const row of result.recordset) {
-                    if (row.transactiontransactionType === 'deposit') {
+            if(result.recordset[0].transactionid) { //hvis der er et transaction id på første record (tester om transaction eksisterer)
+                for (const row of result.recordset) { //for alle records
+                    if (row.transactiontransactionType === 'deposit') { //hvis deposit læg til balanceAfter
                         balanceAfter += convertToTargetCurrency(row.transactionamount, row.transactioncurrency, account.currency, row.transactionexchangeRate);
-                    } else if (row.transactiontransactionType === 'withdraw') {
+                    } else if (row.transactiontransactionType === 'withdraw') { //hvis withdraw træk fra balanceAfter
                         balanceAfter -= convertToTargetCurrency(row.transactionamount, row.transactioncurrency, account.currency, row.transactionexchangeRate);
                     } else {
                         balanceAfter = 0;
                     }
 
-                    const transaction = {
+                    const transaction = { //opret objekt for hver transaction/record
                         id: row.transactionid,
                         portfolioID: row.transactionportfolioID,
                         portfolioName: row.portfolioName,
@@ -86,7 +90,7 @@ class Account {
                         created_at: row.transactioncreated_at
                     }
 
-                    account.transactions.push(transaction);
+                    account.transactions.push(transaction); //tilføj objekt til transactions array
                 }
             }
 
@@ -99,6 +103,7 @@ class Account {
 
     }
 
+    //opretter en account
     async create() {
         const result = await db.request()
             .input('userID', this.userID)
@@ -112,6 +117,7 @@ class Account {
         return result;
     }
 
+    //opdaterer et objekt i databasen
     async update() {
         this.updated();
         const result = await db.request()
@@ -133,11 +139,13 @@ class Account {
         return result;
     }
 
+    //opret en transaktion
     async makeTransaction(amount,exchangeRate,currency,transactionType,portfolioID,tradeID) {
         if(this.closed) {
             return { error: 'Konto er lukket' };
         }
 
+        //omregn til kontoens valuta
         const amountInTargetCurrency = convertToTargetCurrency(amount, currency, this.currency, exchangeRate);
         // Her tjekker vi om der er penge nok på kontoen
         if (transactionType === 'withdraw' && this.balance - amountInTargetCurrency < 0) {

@@ -59,6 +59,8 @@ class User {
 
     async update(){
 
+        //Opdaterer databasen ud fra objektet
+
         const result = await db.request()
             .input('id', this.id)
             .input('name', this.name)

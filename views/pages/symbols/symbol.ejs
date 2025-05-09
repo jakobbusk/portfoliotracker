@@ -105,54 +105,6 @@
                 y: parseFloat(price)
             }));
 
-            //foreslår af fjerne hele kommentaren under og bruge funktionen til at generere chart i stedet
-            /*const historicalDataChartElement = document.getElementById('historicalDataChart')
-
-            const chartOptions = {
-                chart: {
-                    type: 'line',
-                    height: 350,
-
-                    zoom: {
-                        enabled: false
-                    },
-                    toolbar: {
-                        show: false
-                    }
-                },
-                stroke: {
-                    curve: 'smooth',
-                    width: 2
-                },
-                title: {
-                    text: `${symbol.toUpperCase()} - Historisk data`,
-                },
-                xaxis: {
-                    type: 'datetime',
-                    labels: {
-                        format: 'yyyy-MM-dd'
-                    }
-                },
-                tooltip: {
-                    x: {
-                        format: 'dd-MM-yyyy'
-                    }
-                },
-                yaxis: {
-                    title: {
-                        text: 'Price (USD)'
-                    },
-                    type: 'numeric'
-                },
-                series: [{
-                    name: symbol.toUpperCase(),
-                    data
-                }]
-            };
-
-            chart = new ApexCharts(historicalDataChartElement, chartOptions);
-            chart.render();*/
-
             chart = await createLineChart(
                 data,
                 {
