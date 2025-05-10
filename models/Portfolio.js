@@ -23,6 +23,8 @@ class Portfolio {
         if('accountBalance' in data) this.accountBalance = data.accountBalance;
         if('realisedPnL' in data) this.realisedPnL = data.realisedPnL;
         if('totalAcquisitionValue' in data) this.totalAcquisitionValue = data.totalAcquisitionValue;
+        if('totalValue' in data) this.totalValue = data.totalValue;
+        if('totalUnrealisedPnL' in data) this.totalUnrealisedPnL = data.totalUnrealisedPnL;
 
     }
 
@@ -32,20 +34,25 @@ class Portfolio {
         const result = await db.request().input('userID', userID)
             //columns.map bruges til at indsætte alle kolonnerne fra tabellen med p. som præfiks.
             //.join() omdanner arrayet til en string, her med et komma og et mellemrum imellem hvert element
-            //select SUM i parentes: her vælger vi summen af anskaffelsesværdien for alle positioner i porteføljen
+            //vi finder den nyeste PVH værdi ved at sige created_at = 'den nyeste for denne portefølje' (selv ved samme cronjob varierer created_at lidt fra række til række)
             .query(`
                 SELECT
                 ${columns.map(col => 'p.' + col).join(', ')},
                 a.name AS accountName,
                 a.currency AS accountCurrency,
                 a.balance AS accountBalance,
-                (SELECT SUM(pos.GAK * pos.quantity)
-                    FROM Position pos
-                    WHERE pos.portfolioID = p.id
-                ) AS totalAcquisitionValue
+                (pvh.totalPortfolioValue - pvh.totalUnrealisedPnL) AS totalAcquisitionValue,
+                pvh.totalPortfolioValue AS totalValue,
+                pvh.totalUnrealisedPnL AS totalUnrealisedPnL
                 FROM ${this.tableName} p
                 JOIN Account a ON p.accountID = a.id
-                WHERE a.userID = @userID
+                JOIN PortfolioValueHistory pvh ON pvh.portfolioID = p.id
+                WHERE a.userID = @userID AND pvh.created_at = (
+                                                                SELECT TOP 1 created_at
+                                                                FROM PortfolioValueHistory
+                                                                WHERE portfolioID = p.id
+                                                                ORDER BY created_at DESC
+                                                                )
                 `)
 
         if (result.recordset.length === 0) return []; //hvis ingen resultater returner tom array
