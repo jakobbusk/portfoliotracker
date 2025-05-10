@@ -12,12 +12,12 @@ document.getElementById('register').addEventListener('submit', async function (e
 
     const res = await register(name, username, email, password);
     let body = await res.json()
-    
+
     if(res.status === 200) {
         //hvis ok gem credentials i localStorage
         localStorage.setItem('password', password);
-        localStorage.setItem('email', email);
         //velkommen pop up og redirect til dashboard
+        localStorage.setItem('username', username);
         alert(`Velkommen, ${username}!`);
         window.location.href = '/dashboard';
     } else if (res.status === 400) {

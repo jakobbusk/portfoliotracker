@@ -1,11 +1,11 @@
 //laver POST request login for at tjekke om email og password er korrekte
-async function checkCredentials(email, password) {
+async function checkCredentials(username, password) {
     const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ username, password })
     });
     return res;
 }
@@ -17,10 +17,10 @@ async function checkLoginOnLoad(){
     console.log(pathname);
 
 
-    const email = localStorage.getItem('email');
+    const username = localStorage.getItem('username');
     const password = localStorage.getItem('password');
 
-    if(email && password) {
+    if(username && password) {
         if (pathname == '/login' || pathname == '/register') {
             window.location.href = '/dashboard';
         }
@@ -32,13 +32,13 @@ async function checkLoginOnLoad(){
 
 //sender PUT request til ændring af password
 async function changePassword(oldPassword, newPassword, confirmNewPassword){
-    let email = localStorage.email;
+    let username = localStorage.username;
     const res = await fetch('/api/auth/change-password', {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ oldPassword, newPassword, confirmNewPassword, email })
+        body: JSON.stringify({ oldPassword, newPassword, confirmNewPassword, username })
     });
     return res;
 }

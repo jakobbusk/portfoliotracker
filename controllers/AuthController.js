@@ -7,21 +7,21 @@ export default class AuthController {
     // Login
     static async login(req,res){
         // Dekonstruering af email og password fra req.body
-        const { email, password} = req.body
+        const { username, password} = req.body
 
 
         // Validering af email og passwor
-        const { valid, errors } = validateLoginData({ email, password })
+        const { valid, errors } = validateLoginData({ username, password })
         // Hvis der er fejl, så returner fejl
         if (!valid) {
             return res.status(400).json({ errors })
         }
 
-        const user = await User.findBy('email', email)
+        const user = await User.findBy('username', username)
 
         // Hvis der ikke er nogen bruger med det brugernavn, så returner fejl
         if (!user || user.password != password) {
-            return res.status(400).json({ message: 'Invalid email or password' })
+            return res.status(400).json({ message: 'Invalid username or password' })
         }
 
 
@@ -43,14 +43,14 @@ export default class AuthController {
         // Authorization headeren er i formatet "Basic base64(email:password)"
         // Vi splitter den op i to dele og tager den anden del
         const basicauth =  Buffer.from(req.headers.authorization.split(" ")[1], "base64").toString("utf-8");
-        const [email, password] = basicauth.split(":");
+        const [username, password] = basicauth.split(":");
 
 
 
-        if (!email || !password) {
+        if (!username || !password) {
             return res.status(401).json({ message: 'Unauthorized' })
         }
-        const user = await User.findBy('email', email)
+        const user = await User.findBy('username', username)
         // Hvis brugeren ikke findes så returner fejl
         if (!user) {
             return res.status(401).json({ message: 'Unauthorized' })
@@ -78,7 +78,9 @@ export default class AuthController {
         // Opret bruger
         const user = new User({ name, email,username, password })
         try {
-            await user.create()
+            console.log(await user.create());
+
+
         } catch (error) {
             console.log(error);
             return res.status(500).json({ message: 'User creation failed' })
