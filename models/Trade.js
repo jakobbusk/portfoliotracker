@@ -26,6 +26,7 @@ export default class Trade {
         }
     }
 
+    //find alle trades tilhørende en bestemt portefølje, vha. porteføljeID og userID
     static async allByPortfolioID(userID, portfolioID, columns = Trade.columns) {
         console.log('Fetching all trades for user:', userID, 'and portfolio:', portfolioID);
 
@@ -53,6 +54,7 @@ export default class Trade {
         }
     }
 
+    //opret ny handel
     async create(userID, exchangeRate) {
         // Først validerer vi at porteføljen eksisterer
         // Og at assetID eksisterer
@@ -75,6 +77,7 @@ export default class Trade {
             return {
                 error: 'Account is closed',
             }
+        //hvis det er et køb skal der være dækning
         } else if(this.tradeType === 'buy' && account.balance < (this.quantity * this.tradeRate + this.tradingFee) * exchangeRate) {
             return {
                 error: 'Not enough money in account',
@@ -104,7 +107,7 @@ export default class Trade {
         }
 
         if(this.tradeType == 'sell'){
-            // Udregn PnL via GAK
+            // Udregn realiseret gevinst (PnL) via GAK
             this.realisedPnL = (this.tradeRate - position.GAK) * this.quantity;
         }
 
@@ -120,15 +123,17 @@ export default class Trade {
             .input('tradingFee', this.tradingFee)
             .input('tradeType', this.tradeType)
             .input('realisedPnL', this.realisedPnL)
+            //OUTPUT INSERTED sørger for at de nye værdier returneres
             .query(`INSERT INTO
                 ${Trade.table}
                 (portfolioID, assetID, quantity, tradeRate, tradingFee, tradeType, realisedPnL)
                 OUTPUT INSERTED.id, INSERTED.portfolioID, INSERTED.assetID, INSERTED.quantity, INSERTED.tradeRate, INSERTED.tradingFee, INSERTED.tradeType
                 VALUES (@portfolioID, @assetID, @quantity, @tradeRate, @tradingFee, @tradeType, @realisedPnL)`);
 
-            const newTrade = new Trade(tradeQuery.recordset[0]);
-            const tradeValue = this.quantity * this.tradeRate + this.tradingFee;
-            const transactionType = this.tradeType === 'buy' ? 'withdraw' : 'deposit';
+            const newTrade = new Trade(tradeQuery.recordset[0]); //gem returværdi fra SQL query i trade-objekt
+            const tradeValue = this.quantity * this.tradeRate + this.tradingFee; //udregn handelssum
+            const transactionType = this.tradeType === 'buy' ? 'withdraw' : 'deposit'; //sæt transactionType
+            //lav transaktion tilknyttet trade
             const transactionQuery = await account.makeTransaction(tradeValue, exchangeRate, 'USD', transactionType, this.portfolioID, newTrade.id);
             console.log('Transaction query:', transactionQuery);
 

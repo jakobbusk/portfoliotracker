@@ -26,12 +26,16 @@
 <script type="module">
     import api from '/assets/js/api.js';
 
+    //hent formular element
     const createPortfolioForm = document.getElementById('createPortfolioForm');
+    //hent vælg konto select
     const accountSelect = document.getElementById('account');
 
+    //tilføj eventListener til submit af form
     createPortfolioForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+        event.preventDefault(); //undgå standard funktionalitet
 
+        //hent værdier
         const name = document.getElementById('name').value;
         const accountID = document.getElementById('account').value;
         if (!name || !accountID) {
@@ -39,11 +43,13 @@
             return;
         }
 
+        //objekt med data til oprettelse
         const portfolioData = {
             name,
             accountID,
         };
 
+        //send POST til oprettelse
         try {
             const response = await api('/portfolios', 'POST', portfolioData);
 
@@ -67,8 +73,10 @@
             const response = await api('accounts','GET');
             const accounts = await response.json();
 
+            //tilføj hver til konto select
             accounts.forEach(account => {
                 const option = document.createElement('option');
+                //værdien er id, men der vises kontoens navn til brugeren
                 option.value = account.id;
                 option.textContent = account.name;
                 accountSelect.appendChild(option);

@@ -4,9 +4,10 @@ import checkAuth from '../../middleware/auth.js'
 import TradeController from '../../controllers/TradeController.js'
 const router = express.Router()
 
-
+//registrering af handel
 router.post('/',checkAuth, TradeController.handleTrade)
 
+//hent handler tilhørende en portefølje
 router.get('/:portfolioID',checkAuth, TradeController.getTrades)
 
 

@@ -54,15 +54,18 @@
     import createTable from '/assets/js/table.js';
 	import {createLineChart} from '/assets/js/chart.js';
 
+	//hent de elementer fra stat cards i toppen af siden hvor værdierne skal indsættes
 	const totalValueText = document.getElementById('totalValue');
 	const totalRealisedPnLText = document.getElementById('totalRealisedPnL');
 	const totalUnrealisedPnLText = document.getElementById('totalUnrealisedPnL');
 	// Funktion til at hente 3 statistikker
 	async function getStatistics(){
 		try {
+			//henter stats fra dashboard api
 			const response = await api('dashboard');
 			const data = await response.json();
 
+			//indsæt vædier i innerText i valutaformat
 			totalValueText.innerText = Intl.NumberFormat('da-DK', {
 				style: 'currency',
 				currency: 'USD',
@@ -82,7 +85,7 @@
 	}
 	getStatistics();
 
-	//top 5 tabel
+	//top 5 tabel options objekt
 	const top5Valueoptions = {
 		link: {
 			href: '/symbols',
@@ -92,18 +95,18 @@
 			{
 				name: 'Navn',
 				key: 'assetName',
-				callback: (value) => {
+				callback: (value) => { //opretter element med virksomhedens navn i stort og symbol under i lille
 					const assetName = value.assetName;
 					const assetSymbol = value.assetSymbol;
 					const element = document.createElement('span');
-					element.innerHTML =`${assetName}<p>${assetSymbol}</p>`;
+					element.innerHTML =`${assetName}<p>${assetSymbol}</p>`; //p elementet med assetSymbol bliver mindre grundet særlig styling i style.css
 					return element
 				}
 			},
 			{
 				name: 'Portefølje',
 				key: '',
-				callback: (value) => {
+				callback: (value) => { //returnerer link/knap til tilhørende portefølje
 					const portfolioID = value.portfolioID;
 					const portfolioName = value.portfolioName;
 					const element = document.createElement('a');
@@ -140,6 +143,7 @@
 
 
 	//top 5 tabeller
+	//options er de samme som top 5 værdi, bortset fra at unrealisedValue er tilføjet
 	const top5UnrealisedOptions = {
 	link: {
 		href: '/symbols',

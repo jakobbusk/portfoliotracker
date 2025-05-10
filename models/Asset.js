@@ -11,6 +11,8 @@ export default class Asset {
         this.assetType = data.assetType || 'stock';
         this.created_at = data.created_at;
     }
+
+    //find Asset ud fra symbol/ticker
     static async findBySymbol(symbol) {
         const query = db.request()
         try {
@@ -26,6 +28,7 @@ export default class Asset {
         }
     }
 
+    //opret ny asset i databasen
     async create(currentAssetPrice) {
         let result;
         try {

@@ -1,6 +1,7 @@
 import db from '../database/db.js';
 export default class DashboardController {
 
+    //returnerer totalValue, totalUnrealisedPnL og totalRealisedPnL til dashboard
     static async getDashboard(req, res) {
         const userID = req.user.id;
 
@@ -21,6 +22,7 @@ export default class DashboardController {
                     AND pv.created_at = (SELECT MAX(created_at) FROM PortfolioValueHistory WHERE portfolioID = p.id)
                 `)
 
+            //beregn summen af alle porteføljer ved at loope gennem dem alle og lægge deres værdier til totalen
             const portfolios = result.recordset;
             portfolios.forEach(portfolio => {
                 totalValue += portfolio.totalPortfolioValue;

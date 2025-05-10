@@ -70,6 +70,8 @@
     const depositButton = document.getElementById('depositButton');
     const closeOpenButton = document.getElementById('closeOpenButton');
 
+    //vi viser/skjuler de forskellige sider når der trykkes på sideknapperne
+    //vi bruger display: none til at skjule
     transactionsButton.addEventListener('click', () => {
         document.getElementById('transactionContainer').style.display = 'flex';
         document.getElementById('withdrawContainer').style.display = 'none';
@@ -97,10 +99,12 @@
         depositButton.classList.add('button-active')
     });
 
+    //EventListener til åbning og lukning af konto
     closeOpenButton.addEventListener('click', async () => {
         try {
             let state = 'close';
             if (account.closed){state = 'open'}
+            //PUT kald til at ændre status
             const response = await api(`/accounts/${accountID}/${state}`,`PUT`)
             location.reload()
         } catch (error) {
@@ -123,7 +127,7 @@
     // Vi tager længden af URL'en og trækker 1 fra for at få den sidste del
     const accountID = url[url.length - 1];
 
-    // Funktion til at hente alle konti
+    // Funktion til at hente account objekt
     async function fetchAccount(){
         try {
             const response = await api(`/accounts/${accountID}`,'GET')
@@ -133,7 +137,7 @@
             accountName.innerText = account.name;
             accountBank.innerText = account.bankReference;
             accountCurrency.innerText = account.currency;
-            accountBalance.innerText = Intl.NumberFormat('da-DK', {
+            accountBalance.innerText = Intl.NumberFormat('da-DK', { //formatering af valuta
                                         style: 'currency',
                                         currency: account.currency,
                                         }).format(account.balance);
@@ -144,7 +148,7 @@
                 closeOpenButton.className = "button-positive";
             };
 
-
+            //options til createTable
             const options = {
                 columns: [
 
@@ -178,7 +182,7 @@
                     {
                         name: 'Portefølje',
                         key: 'portfolioName',
-                        callback: (row) => {
+                        callback: (row) => { //opretter link til porteføljen
                             if(!row.portfolioName) return '';
                             else {
                                 const linkToPortfolio = document.createElement('a');
@@ -192,7 +196,7 @@
                     {
                         name: 'Dato',
                         key: 'created_at',
-                        callback: (row) => {
+                        callback: (row) => { //datoformatering
                             const date = new Date(row.created_at);
 
                             return date.toLocaleDateString('da-DK', {
@@ -222,7 +226,7 @@
 
 
     // Logik til at indsætte penge herunder
-    // Hent valutaen og kursen fra backend
+    // henter elementer
     const depositForm = document.getElementById('depositForm');
     const amount = document.getElementById('amount');
     const exchangeRate = document.getElementById('exchangeRate');
@@ -234,6 +238,7 @@
     // Så sætter vi kursen til 1
     exchangeRate.value = 1;
     var insertedAmount = 0;
+    //når der sker ændring i valgt valuta hentes vekselkurs
     currency.addEventListener('change', async (e) => {
         console.log(accountCurrency);
 
@@ -249,7 +254,7 @@
         changeInsertedValue();
     });
 
-
+    //beregning af indsat værdi i kontos valuta
     function changeInsertedValue() {
         const amountValue = parseFloat(amount.value);
         const exchangeRateValue = parseFloat(exchangeRate.value);
@@ -259,13 +264,17 @@
             insertedAmount = amountValue * exchangeRateValue;
         }
 
+        //afrund til 2 decimaler og konverter til string
         insertedAmount = insertedAmount.toFixed(2);
+        //ændr teksten i HTML-elementet
         document.getElementById('insertedValue').innerText = `Indsat værdi: ${insertedAmount} ${account.currency}`;
     }
 
+    //eventListener til submit på formularen
     depositForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+        e.preventDefault(); //undgå standard funktionalitet
 
+        //opret objekt med nødvendig data
         const depositData = {
             amount: parseFloat(amount.value),
             currency: currency.value,
@@ -273,6 +282,7 @@
             exchangeRate: parseFloat(exchangeRate.value),
         }
 
+        //opret transaktionen
         try {
             const response = await api(`/accounts/${accountID}/transactions`, 'POST', depositData);
             const body = await response.json();
@@ -292,6 +302,7 @@
 
 
     // Logik til at hæve penge herunder
+    // Fungerer stort set på samme måde som deposit
     const withdrawForm = document.getElementById('withdrawForm');
     const withdrawAmount = document.getElementById('withdrawAmount');
     var withdrawedAmount = 0;

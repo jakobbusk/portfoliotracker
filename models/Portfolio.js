@@ -3,9 +3,11 @@ import Position from './Position.js';
 import Trade from './Trade.js';
 
 class Portfolio {
-
+    
+    //static betyder den tilhører constructoren. Altså kan vi tilgå den fra klassen uden et objekt.
     static tableName = 'Portfolio';
 
+    //array over kolonner i databasens tilsvarende tabel
     static columns = ['id', 'name', 'accountID','userID', 'created_at'];
 
     constructor(data = {}){
@@ -21,30 +23,43 @@ class Portfolio {
         if('accountBalance' in data) this.accountBalance = data.accountBalance;
         if('realisedPnL' in data) this.realisedPnL = data.realisedPnL;
         if('totalAcquisitionValue' in data) this.totalAcquisitionValue = data.totalAcquisitionValue;
+        if('totalValue' in data) this.totalValue = data.totalValue;
+        if('totalUnrealisedPnL' in data) this.totalUnrealisedPnL = data.totalUnrealisedPnL;
 
     }
 
+    //static så den kan kaldes på klassen
+    //finder alle en brugers porteføljer
     static async all(userID, columns = Portfolio.columns) {
         const result = await db.request().input('userID', userID)
+            //columns.map bruges til at indsætte alle kolonnerne fra tabellen med p. som præfiks.
+            //.join() omdanner arrayet til en string, her med et komma og et mellemrum imellem hvert element
+            //vi finder den nyeste PVH værdi ved at sige created_at = 'den nyeste for denne portefølje' (selv ved samme cronjob varierer created_at lidt fra række til række)
             .query(`
                 SELECT
                 ${columns.map(col => 'p.' + col).join(', ')},
                 a.name AS accountName,
                 a.currency AS accountCurrency,
                 a.balance AS accountBalance,
-                (SELECT SUM(pos.GAK * pos.quantity)
-                    FROM Position pos
-                    WHERE pos.portfolioID = p.id
-                ) AS totalAcquisitionValue
+                (pvh.totalPortfolioValue - pvh.totalUnrealisedPnL) AS totalAcquisitionValue,
+                pvh.totalPortfolioValue AS totalValue,
+                pvh.totalUnrealisedPnL AS totalUnrealisedPnL
                 FROM ${this.tableName} p
                 JOIN Account a ON p.accountID = a.id
-                WHERE a.userID = @userID
+                JOIN PortfolioValueHistory pvh ON pvh.portfolioID = p.id
+                WHERE a.userID = @userID AND pvh.created_at = (
+                                                                SELECT TOP 1 created_at
+                                                                FROM PortfolioValueHistory
+                                                                WHERE portfolioID = p.id
+                                                                ORDER BY created_at DESC
+                                                                )
                 `)
 
-        if (result.recordset.length === 0) return [];
-        return result.recordset.map(row => new Portfolio(row));
+        if (result.recordset.length === 0) return []; //hvis ingen resultater returner tom array
+        return result.recordset.map(row => new Portfolio(row)); //returner resultatet som en array af Portfolio objekter
     }
 
+    //henter specifik portefølje med navn på tilknyttet konto og realiseret gevinst.
     static async findByID(id, userID, columns = Portfolio.columns) {
         const query = db.request()
         try {
@@ -64,7 +79,7 @@ class Portfolio {
                     WHERE p.id = @id AND a.userID = @userID`)
 
             if (result.recordset.length === 0) return null;
-            return new Portfolio(result.recordset[0]);
+            return new Portfolio(result.recordset[0]); //returnerer porteføljeobjekt, med realisedPnL-key.
 
         } catch (error) {
             console.error('Error fetching portfolio:', error);
@@ -72,11 +87,14 @@ class Portfolio {
         }
     }
 
+    //opret portefølje
     async create() {
         const result = await db.request()
+            //først sættes input parametre
             .input('name', this.name)
             .input('userID', this.userID)
             .input('accountID', this.accountID)
+            //herefter INTERT INTO query for at oprette en ny række
             .query(`INSERT INTO ${Portfolio.tableName} (name, accountID, userID)
                 OUTPUT INSERTED.Id
                 VALUES (@name, @accountID, @userID)`);
@@ -84,11 +102,15 @@ class Portfolio {
         return result;
     }
 
+    //henter historiske værdier for en portefølje
     static async getHistoricalValue(portfolioID, userID) {
         const query = db.request()
         try {
             const result = await query
             .input('portfolioID', portfolioID).input('userID', userID)
+                //vi vælger alle kolonner i PortfolioValueHistory. 
+                //vi joiner med portfolio og sætter også userID som betingelse
+                //til sidst sorteres efter største dato (nyeste) først
                 .query(`
                     SELECT
                     pv.*
@@ -107,6 +129,7 @@ class Portfolio {
         }
     }
 
+    //henter alle porteføljer i hele databasen
     static async getAllPortfolios(){
         const query = db.request()
         try {
@@ -115,29 +138,34 @@ class Portfolio {
                 SELECT * FROM Portfolio
                 `)
             if (result.recordset.length === 0) return [];
-            return result.recordset.map(row => new Portfolio(row));
+            return result.recordset.map(row => new Portfolio(row)); //returnerer resultaterne som Portfolio objekter
         } catch (error) {
             console.error('Error fetching all portfolios:', error);
             throw error;
         }
     }
 
+    //opdaterer PortfolioValueHistory tabellen
     async updatePortfolioValueHistory(){
-        // Først henter vi alle positioner i porteføljen
+        // Først henter vi alle positioner og trades i porteføljen
         const [positions, trades] = await Promise.all([
             await Position.allByPortfolioID(this.id, this.userID),
             await Trade.allByPortfolioID(this.userID, this.id, ['realisedPnL'])
         ])
 
+        //erklær variable for de tre nøgletal
         let totalPortfolioValue = 0;
         let totalUnrealisedPnL = 0;
         let totalRealisedPnL = 0;
 
+        //for hver position lægges værdien og den urealiserede værdi til totalerne
         positions.forEach(position => {
             totalPortfolioValue += position.totalValue;
+            //urealiseret gevinst regnes som værdi minus erhvervelsesværdi
             totalUnrealisedPnL += position.totalValue - (position.GAK * position.quantity);
         })
 
+        //urealiseret værdi regnes ved at tage summen af den realiserede værdi ved hver handel
         trades.forEach(trade => {
             if(trade.realisedPnL == null) return;
             totalRealisedPnL += trade.realisedPnL;
@@ -156,10 +184,12 @@ class Portfolio {
         const query = db.request()
         try {
             const result = await query
+                //sætter inputparametre
                 .input('portfolioID', this.id)
                 .input('totalPortfolioValue', totalPortfolioValue)
                 .input('totalUnrealisedPnL', totalUnrealisedPnL)
                 .input('totalRealisedPnL', totalRealisedPnL)
+                //opretter ny række i tabellen med INSERT INTO
                 .query(`INSERT INTO PortfolioValueHistory (portfolioID, totalPortfolioValue, totalUnrealisedPnL, totalRealisedPnL)
                     VALUES (@portfolioID, @totalPortfolioValue, @totalUnrealisedPnL, @totalRealisedPnL)`);
             return result;

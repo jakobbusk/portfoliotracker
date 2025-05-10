@@ -33,8 +33,10 @@
         try {
             const response = await api('portfolios','GET')
             const portfolios = await response.json();
+
+            //options til createTable
             const options = {
-                link: {
+                link: { //hver linje i tabellen linker til den porteføljespecifikke side
                     key: 'id',
                     href: '/portfolios',
                 },
@@ -45,10 +47,24 @@
                         if (row.totalAcquisitionValue === null) {
                             return '0';
                         }
-                        console.log(row.totalAcquisitionValue);
-
+                        //formatering af valuta
                         return row.totalAcquisitionValue = row.totalAcquisitionValue.toLocaleString('da-DK', { style: 'currency', currency: 'USD' });
-                    }}
+                    }},
+                    { name: "Urealiseret gevinst", key: 'totalUnrealisedPnL', callback: (row) => {
+                        if (row.totalUnrealisedPnL === null) {
+                            return '0';
+                        }
+                        //formatering af valuta
+                        console.log(row.totalUnrealisedPnL)
+                        return row.totalUnrealisedPnL = row.totalUnrealisedPnL.toLocaleString('da-DK', { style: 'currency', currency: 'USD' });
+                    }},
+                    { name: "Markedsværdi", key: 'totalValue', callback: (row) => {
+                        if (row.totalValue === null) {
+                            return '0';
+                        }
+                        //formatering af valuta
+                        return row.totalValue = row.totalValue.toLocaleString('da-DK', { style: 'currency', currency: 'USD' });
+                    }},
                 ]
             }
 

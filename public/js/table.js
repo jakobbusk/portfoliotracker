@@ -43,7 +43,7 @@ function createTable(data, options, tableID){
                     // Ellers sætter vi værdien til td
                     td.textContent = value;
                 }
-            } else {
+            } else { //hvis ingen callback-funktion sættes værdien direkte ind
                 td.textContent = rowData[column.key];
             }
             row.appendChild(td);

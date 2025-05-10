@@ -104,6 +104,7 @@ export default class AccountController {
         const { amount,currency,exchangeRate,transactionType  } = req.body;
         let account
 
+        //find account
         try {
             account = await Account.findByID(accountID, userID);
             if (!account) {
@@ -114,6 +115,7 @@ export default class AccountController {
             return res.status(500).json({ message: 'Error making transaction', error });
         }
 
+        //opret transaktion
         try {
             const result = await account.makeTransaction(amount,exchangeRate,currency,transactionType);
 

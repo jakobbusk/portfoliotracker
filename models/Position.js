@@ -21,11 +21,13 @@ export default class Position {
 
     }
 
+    //hent alle positioner ud fra portfolioID og userID
     static async allByPortfolioID(portfolioID,userID, columns = Position.columns) {
         const query = db.request()
         try {
             const result = await query.input('portfolioID', portfolioID)
                 .input('userID', userID)
+                //bemærk vi finder nyeste pris ved at sætte hap dato lig SELECT TOP 1 dato
                 .query(`SELECT
                     ${columns.map(col => 'p.' + col).join(', ')},
                     a.name AS assetName,
@@ -55,6 +57,7 @@ export default class Position {
 
     }
 
+    //finder en position ud fra id og brugerID, indsætter symbol og assetName sammen med
     static async findByID(id, userID, columns = Position.columns) {
         const query = db.request()
         try {
@@ -78,7 +81,7 @@ export default class Position {
         }
     }
 
-
+    //hent top 5 positioner målt på værdi
     static async top5Value(userID, columns = Position.columns) {
         // Hent de 5 største værdier på positioner med userID
         // Alle porteføljer
@@ -121,6 +124,8 @@ export default class Position {
         }
     }
 
+    //hent top 5 positioner målt på urealiseret gevinst
+    //fungerer på samme måde som ovenstående metode
     static async top5UPNL(userID, columns = Position.columns) {
         const query = db.request()
         try {
@@ -157,7 +162,7 @@ export default class Position {
 
     }
 
-
+    //find position efter portføljeID og assetID
     static async findByPortfolioIDAndAssetID(portfolioID, assetID, columns = Position.columns) {
         const query = db.request()
         try {
@@ -173,6 +178,7 @@ export default class Position {
         }
     }
 
+    //opret ny position i databasen
     async create() {
         const query = db.request()
         try {
@@ -180,6 +186,7 @@ export default class Position {
                 .input('assetID', this.assetID)
                 .input('quantity', this.quantity)
                 .input('GAK', this.GAK)
+                //INSERT INTO bruges til at oprette en ny række i position tabellen.
                 .query(`INSERT INTO ${Position.tableName} (portfolioID, assetID, quantity, GAK) OUTPUT INSERTED.* VALUES (@portfolioID, @assetID, @quantity, @GAK)`);
 
             return result.recordset[0];
@@ -195,10 +202,12 @@ export default class Position {
 
         if(tradeType === 'buy') {
             // Hvis det er en buy trade så skal vi opdatere GAK
+            // GAK = (nuværende erhvervelsesværdi + handelssum) / (nuværende antal stk + nye antal stk anskaffet)
             // GAK = (GAK * quantity + tradeValue) / (quantity + tradeQuantity)
             this.GAK = (this.GAK * this.quantity + tradeValue) / (this.quantity + tradeQuantity);
             this.quantity = this.quantity + tradeQuantity;
 
+        //opdater quantity ved et salg
         } else if(tradeType === 'sell') {
             this.quantity = this.quantity - tradeQuantity;
 
@@ -218,6 +227,7 @@ export default class Position {
                 .input('assetID', this.assetID)
                 .input('quantity', this.quantity)
                 .input('GAK', this.GAK)
+                //her bruger vi UPDATE til at ændre data i eksisterende række
                 .query(`UPDATE ${Position.tableName} SET quantity = @quantity, GAK = @GAK
                     WHERE portfolioID = @portfolioID AND assetID = @assetID`);
 
@@ -229,12 +239,13 @@ export default class Position {
     }
 
 
-        // Logik til at slette en position når den er 0
+        // Logik til at slette en position når den er 0, dvs. lukket
         async delete() {
             const query = db.request()
             try {
                 const result = await query.input('portfolioID', this.portfolioID)
                     .input('assetID', this.assetID)
+                    //Vi bruger DELETE til at slette rækken
                     .query(`DELETE FROM ${Position.tableName} WHERE portfolioID = @portfolioID AND assetID = @assetID`);
                 return result.recordset;
             } catch (error) {

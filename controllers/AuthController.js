@@ -19,7 +19,7 @@ export default class AuthController {
 
         const user = await User.findBy('username', username)
 
-        // Hvis der ikke er nogen bruger med den email, så returner fejl
+        // Hvis der ikke er nogen bruger med det brugernavn, så returner fejl
         if (!user || user.password != password) {
             return res.status(400).json({ message: 'Invalid username or password' })
         }
@@ -123,6 +123,6 @@ export default class AuthController {
             return res.status(500).json({ message: 'Passwordopdatering fejlede' })
         }
 
-        return res.status(200).json({ message: 'Passwordopdatering fejlede' })
+        return res.status(200).json({ message: 'Password opdateret' })
     }
 }

@@ -80,6 +80,7 @@
                 console.log(response.error);
                 alert('Ikke flere api kald tilbage');
             }else if (result.price) {
+                //indsæt kursen og kald calculatePrice
                 const stockPrice = result.price;
                 tradeRateInput.value = stockPrice;
                 calculatePrice();
@@ -101,6 +102,7 @@
                 portfolios.forEach(portfolio => {
                     const option = document.createElement('option');
                     option.value = portfolio.id;
+                    //textContent indholder porteføljenavn og saldo på tilknyttet konto
                     option.textContent = `${portfolio.name} - ${Intl.NumberFormat('da-DK', { style: 'currency', currency: portfolio.accountCurrency }).format(portfolio.accountBalance)}`;
                     portfolioSelect.appendChild(option);
                 });
@@ -116,11 +118,13 @@
     // Event listener til portefølje skift
     portfolioSelect.addEventListener('change', async (event) => {
         const selectedPortfolioId = parseInt(event.target.value); // Parseint fordi vi får værdien i text
+        //find porteføljeobjekt ud fra id
         const selectedPortfolio = portfolios.find(portfolio => portfolio.id === selectedPortfolioId);
 
         if (selectedPortfolio) {
             accountBalance = selectedPortfolio.accountBalance;
             portfolioCurrency = selectedPortfolio.accountCurrency;
+            //hent exchangerate og udregn pris
             await getExchangeRate(selectedPortfolio.accountCurrency)
         }
     });
@@ -178,9 +182,9 @@
     }
 
 
-
+    //hent form og submit
     const makeTradeForm = document.getElementById('makeTrade')
-    const submitButton = document.querySelector('#makeTrade [type=submit]')
+    const submitButton = document.querySelector('#makeTrade [type=submit]') //hent det element med typen submit i det element med id makeTrade
 
     // event til submit og køb papir
     makeTradeForm.addEventListener('submit',  async (event) => {
@@ -193,6 +197,7 @@
         }
 
         try {
+            //POST til at lave trade
             const response = await api('trades', 'POST', {
                 symbol: symbol,
                 quantity: parseInt(quantityInput.value),

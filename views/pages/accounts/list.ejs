@@ -30,10 +30,13 @@
     // Funktion til at hente alle konti
     async function fetchAccounts(){
         try {
+            //hent brugerens accounts
             const response = await api('accounts','GET')
             const accounts = await response.json();
+
+            //options til createTable
             const options = {
-                link: {
+                link: { //når man trykker på en række skal den linke til siden for den account
                     key: 'id',
                     href: '/accounts',
                 },
@@ -41,7 +44,7 @@
                     { name: 'Konto', key: 'name'},
                     { name: 'Bank', key: 'bankReference' },
                     { name: 'Valuta', key: 'currency' },
-                    { name: 'Saldo', key: 'balance', callback: (row) => {
+                    { name: 'Saldo', key: 'balance', callback: (row) => { //callback sætter valutaformat
                         return row.balance.toLocaleString('da-DK', {
                             style: 'currency',
                             currency: row.currency,
@@ -49,6 +52,7 @@
                         }
                     },
                     { name: 'Status', key: 'closed', callback: (row) => {
+                        //returnerer HTML-element med styling class ift. om den er lukket/åben
                         let innerText;
                         let stylingClass;
                         if (row.closed){
@@ -58,6 +62,7 @@
                             innerText = "Åben";
                             stylingClass = "positive";
                         };
+                        //vi bruger elementet span så vi ikke påvirker layoutet
                         let element = document.createElement('span');
                         element.innerText = innerText;
                         element.className = stylingClass;
@@ -66,6 +71,7 @@
                 ]
             }
 
+            //vi kalder createTable for at oprette tabellen
             createTable(accounts, options, "accountTable");
         } catch (error) {
             alert('Der skete en fejl under hentning af konti');

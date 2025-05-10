@@ -26,6 +26,7 @@ export function validateLoginData({username, password}) {
 
 }
 
+//validerer input når man opretter bruger
 export function validateRegisterData({name, username, email, password}) {
     const errors = {}
 

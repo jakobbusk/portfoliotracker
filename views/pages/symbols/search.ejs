@@ -32,10 +32,12 @@
     import createTable from '/assets/js/table.js';
 
 	// Logik til at håndtere symbolopslag
+	//hent form, søgefelt og knap
 	const symbolLookupForm = document.getElementById('symbolLookupForm');
 	const symbolLookup = document.getElementById('symbolLookup');
 	const searchButton = document.getElementById('searchButton');
 
+	//eventListener til knap
 	symbolLookupForm.addEventListener('submit', async (event) => {
 		event.preventDefault();
 
@@ -45,7 +47,9 @@
 			const response = await api(`services/symbols?q=${symbol}`, 'GET');
 			if (response.ok) {
 				const data = await response.json();
+				//options til createTable funktion
                 const options = {
+					//link hver række til symbolets side
                     link: {href: '/symbols', key: 'symbol'},
                     columns: [
                     {
@@ -61,6 +65,7 @@
 						name: 'Handlinger',
 						key: 'symbol',
 						callback: (value) => {
+							//returnerer a element der fungerer som købknap
 							const symbol = value.symbol;
 							const link = document.createElement('a');
 							link.className = 'table-button'
