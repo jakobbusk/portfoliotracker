@@ -24,9 +24,6 @@
         <div id="portfolioHistory" style="display: none;">
             <%- include('./history') %>
         </div>
-        <div id="portfolioTrade" style="display: none;">
-            <%- include('./sell') %>
-        </div>
 
     </main>
 <%- include('../../partials/footer') %>
@@ -41,18 +38,18 @@
     const portfolioHistoryLink = document.getElementById('portfolioHistoryLink');
     const portfolioTradeLink = document.getElementById('portfolioTradeLink');
     function setView(view) {
+        //hent data til view
         if(view === 'dashboard') {
             fetchPortfolioPositions();
         } else if(view === 'history') {
             fetchPortfolioHistory();
-        } else if(view === 'trade') {
-
-        }
-
+        };
+        //sæt valgte side til display: block, resten til none så de skjules
         document.getElementById('portfolioDashboard').style.display = view === 'dashboard' ? 'block' : 'none';
         document.getElementById('portfolioHistory').style.display = view === 'history' ? 'block' : 'none';
         document.getElementById('portfolioTrade').style.display = view === 'trade' ? 'block' : 'none';
 
+        //marker sidens tilhørende sideknap som aktiv
         switch (view) {
             case 'dashboard':
                 portfolioDashboardLink.classList.add('button-active')
@@ -73,6 +70,7 @@
                 break;
         }
     }
+    //sæt view når der trykkes på tilhørende knap
     portfolioDashboardLink.addEventListener('click', () => {
         setView('dashboard');
     });
@@ -99,11 +97,14 @@
         try {
             const response = await api(`portfolios/${portfolioID}`,'GET')
             const portfolioDetails = await response.json();
+
             portfolioName.innerText = portfolioDetails.name;
             portfolioDesc.innerText = `Tilknyttet konto: ${portfolioDetails.accountName}`;
+
             if(portfolioDetails.realisedPnL == null) {
                 portfolioDetails.realisedPnL = 0;
             }
+            //realiseret gevinst hentes sammen med porteføljen, så den tilføjes nu
             totalRealisedPnLText.innerText = portfolioDetails.realisedPnL.toLocaleString('da-DK', {
                 style: 'currency',
                 currency: 'USD',
@@ -117,8 +118,9 @@
     }
     await fetchPortfolio();
 
-    // Funktion til at hente porteføljens positioner
+
     const portfolioPosTable = document.getElementById('portfolioPosTable');
+    //options til createTable
     const portfolioTableOptions = {
         columns: [
             { name: 'Aktie', key: 'assetName' },
@@ -134,7 +136,7 @@
             {
                 name: 'Urealiseret gevinst',
                 key: 'unrealisedPnL',
-                callback: (row) => {
+                callback: (row) => { //urealiseret gevinst regnes ud fra totalværdi, GAK og antal stk
                     return (row.totalValue - (row.GAK * row.quantity)).toLocaleString('da-DK', {
                         style: 'currency',
                         currency: row.assetCurrency || 'USD',
@@ -145,6 +147,7 @@
 						name: 'Handlinger',
 						key: 'symbol',
 						callback: (value) => {
+                            //returnerer sælg knap/link i form af a element
 							const symbol = value.assetSymbol;
 							const link = document.createElement('a');
 							link.className = 'table-button'
@@ -159,19 +162,23 @@
     const totalMarketValueText = document.getElementById('totalMarketValue');
     const totalUnrealisedPnLText = document.getElementById('totalUnrealisedPnL');
     const totalAcquisitionValueText = document.getElementById('totalAcquisitionValue');
+    //henter alle porteføljens positioner
     async function fetchPortfolioPositions() {
         try {
             const response = await api(`portfolios/${portfolioID}/positions`, 'GET');
             const portfolioPositions = await response.json();
 
+            //først sættes totaler til 0
             let totalMarketValue = 0;
             let totalUnrealisedPnL = 0
             let totalAcquisitionValue = 0;
+            //herefter loopes gennem alle porteføljer og de lægges til totalerne
             portfolioPositions.forEach(row => {
                 totalMarketValue += row.totalValue;
                 totalUnrealisedPnL += row.totalValue - (row.GAK * row.quantity);
                 totalAcquisitionValue += row.GAK * row.quantity;
             });
+            //til sidst sættes totalerne ind i korrekt valutaformat
             totalMarketValueText.innerText = totalMarketValue.toLocaleString('da-DK', {
                 style: 'currency',
                 currency: 'USD',
@@ -185,8 +192,9 @@
                 currency: 'USD',
             });
 
-
+            //opret tabel over positioner
             createTable(portfolioPositions, portfolioTableOptions, "portfolioPosTable");
+            //opret pie chart over positioner
             createPieChart(portfolioPositions,'Fordeling af værdi','positionPieChart');
 
         } catch (error) {
@@ -198,6 +206,7 @@
 
     // Logik til at hente handels historik
     const portfolioHistoryTable = document.getElementById('portfolioHistoryTable');
+    //options til createTable
     const portfolioHistoryTableOptions = {
         columns: [
             { name: 'Aktie', key: 'assetName' },
@@ -214,6 +223,7 @@
                 }
             },
             { name: 'Værdi', key: 'value', callback: (row) => {
+                //værdien af en handel regnes som kurs * antal stk + gebyr
                 const tradeRate = row.tradeRate;
                 const quantity = row.quantity;
                 const tradingFee = row.tradingFee;
@@ -246,6 +256,7 @@
         ]
     }
 
+    //henter handelshistorik for porteføljen og opretter tabel ud fra options ovenfor
     async function fetchPortfolioHistory() {
         try {
             const response = await api(`trades/${portfolioID}`, 'GET');
@@ -260,9 +271,10 @@
     }
 
 
-    // funktion til portfolio value history
+    // funktion til portfolio unrealised gains history linjegraf
     function createValueChart(historyData){
         try {
+            //kalder createLineChart fra chart.js
             createLineChart(
                 historyData,
                 {title: 'Total urealiseret gevinst', seriesName: 'Total urealiseret gevinst series', currency: 'USD'},
@@ -280,6 +292,8 @@
             const response = await api(`portfolios/${portfolioID}/historical`, 'GET');
             const portfolioValueHistory = await response.json();
 
+            //apex skal have data som en array med objekter der indeholder x og y værdier
+            //looper igennem alle resultater og sætter x til dato og y til urealiseret værdi
             let historyData = []
             portfolioValueHistory.forEach(row => {
                 historyData.push({

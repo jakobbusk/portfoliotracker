@@ -32,15 +32,19 @@ function logout() {
     }
     return button.addEventListener('click', (event) => {
         event.preventDefault();
+        //slet localStorage, hvor vi opbevarer email og password når man er logget ind
         localStorage.clear();
+        //redirect til loginsiden
         window.location.href = '/login';
     });
 }
 
+//sæt den aktive side i sidebar
 function setActiveLink() {
     const currentPath = window.location.pathname;
     const menuLinks = document.querySelectorAll('.nav-link');
     menuLinks.forEach(link => {
+        //hvis menu-linket er lig nuværende sti
         if (link.getAttribute('href') === currentPath) {
             // sætter linket til aktivt
             link.classList.add('active-menu-link');

@@ -11,7 +11,9 @@
 
         <div class="flex-container">
             <div class="flex-item flex-item-fullwidth">
+
                 <form id="createAccountForm" class="flex-center flex-column">
+
                     <input type="text" id="name" placeholder="Konto navn" required>
                     <input type="text" id="bankReference" placeholder="Bank navn" required>
                     <select id="currency" required>
@@ -31,11 +33,14 @@
 <script type="module">
     import api from '/assets/js/api.js';
 
+    //hent formularen
     const createAccountForm = document.getElementById('createAccountForm');
 
+    //tilføj eventListener
     createAccountForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
+        //hent værdier fra formularen
         const name = document.getElementById('name').value;
         const bankReference = document.getElementById('bankReference').value;
         const currency = document.getElementById('currency').value;
@@ -46,12 +51,14 @@
             currency
         };
 
+        //kald POST til accounts for at oprette en account
         try {
             const response = await api('/accounts', 'POST', accountData);
 
             if (response.ok) {
                 const result = await response.json();
 
+                //redirect til den nye account
                 window.location.href = `/accounts/${result.accountID}`;
 
             } else {

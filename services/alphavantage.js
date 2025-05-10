@@ -1,3 +1,4 @@
+//henter historisk kurs data på et symbol
 export async function historicalStockData (symbol) {
 
     try {
@@ -7,6 +8,7 @@ export async function historicalStockData (symbol) {
         if (data['Time Series (Daily)']) {
             const rawData = data['Time Series (Daily)'];
 
+            //vi er kun interesseret i lukkekursen, derfor henter vi denne fra resultatet
             const parsedData = {};
             Object.entries(rawData).forEach(([date, values]) => {
                 parsedData[date] = values['4. close'];
@@ -28,6 +30,7 @@ export async function historicalStockData (symbol) {
 
 }
 
+//hent kursen på en aktie
 export async function getStockPrice (symbol) {
     try {
         const result = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${process.env.ALPHA_VANTAGE_API_KEY}`);

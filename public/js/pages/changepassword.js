@@ -1,5 +1,6 @@
 import { changePassword } from '/assets/js/auth.js';
 
+//eventListener på submit fra changePassword formularen
 document.getElementById('changepassword').addEventListener('submit', async function (event) {
     event.preventDefault();
 
@@ -8,6 +9,7 @@ document.getElementById('changepassword').addEventListener('submit', async funct
     const newPassword = document.getElementById('newPassword').value;
     const confirmNewPassword = document.getElementById('confirmNewPassword').value;
 
+    //kald changePassword funktion med værdierne
     const res = await changePassword(oldPassword, newPassword, confirmNewPassword);
     let body = await res.json()
     //hvis status ok, gem nyt password i localStorage og redirect til dashboard.

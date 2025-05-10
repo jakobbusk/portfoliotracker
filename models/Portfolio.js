@@ -31,7 +31,7 @@ class Portfolio {
     static async all(userID, columns = Portfolio.columns) {
         const result = await db.request().input('userID', userID)
             //columns.map bruges til at indsætte alle kolonnerne fra tabellen med p. som præfiks.
-            //.join() omdanner arrayet til en string, her med et komma og et whitespace imellem hvert element
+            //.join() omdanner arrayet til en string, her med et komma og et mellemrum imellem hvert element
             //select SUM i parentes: her vælger vi summen af anskaffelsesværdien for alle positioner i porteføljen
             .query(`
                 SELECT

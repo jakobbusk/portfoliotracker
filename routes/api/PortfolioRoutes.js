@@ -32,6 +32,7 @@ router.get('/:id/positions/:positionID',checkAuth, PortfolioController.getPositi
 // Håndter portefølje trades
 router.get('/:id/trades',checkAuth, PortfolioController.getTrades)
 
+// Opret trade
 router.post('/:id/trades',checkAuth, PortfolioController.createTrade)
 
 

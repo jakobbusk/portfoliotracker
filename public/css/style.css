@@ -33,6 +33,8 @@ p, label {
     font-weight: bold;
 }
 
+
+
 .container {
     display: flex;
     background-color: #1E1E1E;
@@ -172,7 +174,7 @@ header {
     align-items: flex-end;
 }
 
-/*tables*/
+/*tabeller*/
 table {
     background-color: #1E1E1E;
     width: 100%;
@@ -224,7 +226,7 @@ button, .button {
 button:hover, .button:hover, tr:not(:has(th)):hover, input:hover, select:hover, .table-button:hover, .button-active {
     background-color: #2f2f2f;
     transition: background-color 0.3s; /*så ny baggrund fader ind*/
-    cursor: pointer;
+    cursor: pointer; /*ændrer musen*/
 }
 button:disabled:hover { /*fjern hover funktionalitet når button er disbabled*/
     background-color: #242424;
@@ -256,7 +258,7 @@ input, select {
     font-size: 14px;
 }
 
-input:focus, select:focus {
+input:focus, select:focus { /*focus er når man trykker på den så man 'står' i feltet og kan skrive*/
     outline: 1px solid #8B8B89;
 }
 input::placeholder {
