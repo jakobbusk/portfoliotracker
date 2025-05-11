@@ -4,7 +4,7 @@
   "main": "server.js",
   "scripts": {
     "test": "mocha tests",
-    "start": "node app.js",
+    "start": "node app.js --environment=development",
     "dev": "nodemon -e ejs,js,mjs,cjs,json app.js",
     "migrate": "node database/migrate.js"
   },
