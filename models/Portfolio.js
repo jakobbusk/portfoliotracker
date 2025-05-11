@@ -34,7 +34,12 @@ class Portfolio {
         const result = await db.request().input('userID', userID)
             //columns.map bruges til at indsætte alle kolonnerne fra tabellen med p. som præfiks.
             //.join() omdanner arrayet til en string, her med et komma og et mellemrum imellem hvert element
-            //vi finder den nyeste PVH værdi ved at sige created_at = 'den nyeste for denne portefølje' (selv ved samme cronjob varierer created_at lidt fra række til række)
+            //LEFT JOIN er ret kompleks:
+            //Inderste SELECT: Her vælger vi den nyeste row i PVH for hver portefølje ved at gruppere efter portfolioID
+            //dvs. den finder den største dato for hver portfolioID
+            //dette inner joines med PortfolioValueHistory, så vi kun får den nyeste række for hver portefølje
+            //til sidst joines alt dette med Portfolio tabellen
+            //JOIN er som default INNER JOIN, men skrevet ud for lidt bedre læsbarhed
             .query(`
                 SELECT
                 ${columns.map(col => 'p.' + col).join(', ')},
@@ -46,13 +51,16 @@ class Portfolio {
                 pvh.totalUnrealisedPnL AS totalUnrealisedPnL
                 FROM ${this.tableName} p
                 JOIN Account a ON p.accountID = a.id
-                JOIN PortfolioValueHistory pvh ON pvh.portfolioID = p.id
-                WHERE a.userID = @userID AND pvh.created_at = (
-                                                                SELECT TOP 1 created_at
-                                                                FROM PortfolioValueHistory
-                                                                WHERE portfolioID = p.id
-                                                                ORDER BY created_at DESC
-                                                                )
+                LEFT JOIN (
+                    SELECT pvh2.id, pvh2.portfolioID, pvh2.totalPortfolioValue, pvh2.totalUnrealisedPnL, pvh2.created_at
+                    FROM PortfolioValueHistory pvh2
+                    INNER JOIN (
+                        SELECT portfolioID, MAX(created_at) AS newest
+                        FROM PortfolioValueHistory
+                        GROUP BY portfolioID
+                        ) pvh3 ON pvh2.portfolioID = pvh3.portfolioID AND pvh2.created_at = pvh3.newest
+                    )pvh ON pvh.portfolioID = p.id
+                WHERE a.userID = @userID
                 `)
 
         if (result.recordset.length === 0) return []; //hvis ingen resultater returner tom array
