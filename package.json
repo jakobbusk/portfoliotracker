@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "mocha tests/all.test.js",
+    "test": "mocha tests",
     "start": "node app.js",
     "dev": "nodemon -e ejs,js,mjs,cjs,json app.js",
     "migrate": "node database/migrate.js"

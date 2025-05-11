@@ -1,10 +1,10 @@
 import { expect } from "chai";
 import db from "../database/db.js";
 import User from "../models/User.js";
-// Her laver vi en test, for at se om vi kan oprette
+// Her laver vi en test for at se om vi kan oprette
 // en ny bruger i databasen.
 
-describe("Account test", () => {
+describe("User test", () => {
     // Opret forbindelse til databasen først
     before(async () => {
         await db.connect();
@@ -52,6 +52,8 @@ describe("Account test", () => {
         expect(result).to.be.an("object");
         expect(result).to.have.property("rowsAffected");
         expect(result.rowsAffected[0]).to.equal(1);
+
+        await db.close();
     })
 })
 
